@@ -1,8 +1,7 @@
 ---
 // import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
-import WebCall from '../components/WebCall';
-import RetellVariables from '../components/RetellVariables.vue';
+import Layout from '../../layouts/Layout.astro';
+import BookingCalendar from '../../components/BookingCalendar.vue';
 
 // Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
 // Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
@@ -10,9 +9,8 @@ import RetellVariables from '../components/RetellVariables.vue';
 
 <Layout>
 	<div class="container">
-		<h1>Retell Web Call Demo</h1>
-		<RetellVariables client:load />
-		<WebCall client:load agentId="agent_0c5c431f3f7b9d04e346c7aa72" />
+		<h1>Calendar View</h1>
+		<BookingCalendar client:load />
 	</div>
 </Layout>
 
