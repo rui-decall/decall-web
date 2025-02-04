@@ -8,11 +8,15 @@ import react from '@astrojs/react';
 import vue from '@astrojs/vue';
 
 import tailwindcss from '@tailwindcss/vite';
+
 // https://astro.build/config
 export default defineConfig({
   adapter: cloudflare(),
   output: 'server',
-  integrations: [react(), vue()],
+  integrations: [
+    react(), 
+    vue()
+  ],
 
   vite: {
     plugins: [tailwindcss()],
@@ -27,6 +31,7 @@ export default defineConfig({
             }
           : undefined,
     },
+
     define: {
       'process.env.PUBLIC_SUPABASE_URL': JSON.stringify(process.env.PUBLIC_SUPABASE_URL),
       'process.env.PUBLIC_SUPABASE_ANON_KEY': JSON.stringify(process.env.PUBLIC_SUPABASE_ANON_KEY),

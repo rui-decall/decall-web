@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { RetellWebClient } from "retell-client-js-sdk";
 import { useStore } from '@nanostores/react'
 import { $retellVariables } from '../stores/retellVariables'
+import { $callState, setCallState } from '../stores/callState'
 
 interface WebCallProps {
   agentId: string;
@@ -14,65 +15,68 @@ interface CallStartedEvent {
 const retellWebClient = new RetellWebClient();
 
 export default function WebCall({ agentId }: WebCallProps) {
-  const [isCalling, setIsCalling] = useState(false);
-  const [callStatus, setCallStatus] = useState("Not started");
-  const [callId, setCallId] = useState<string | null>(null);
-  const [agentState, setAgentState] = useState("Idle");
   const variables = useStore($retellVariables)
+  const currentState = useStore($callState)
 
   useEffect(() => {
-    // Initialize event listeners
     retellWebClient.on("call_started", (event: CallStartedEvent) => {
       console.log("call started", event);
-      setCallStatus("Call in progress");
-      if (event?.id) {
-        setCallId(event.id);
-      }
+      setCallState({
+        callStatus: "Call in progress",
+        callId: event?.id || null
+      });
     });
     
     retellWebClient.on("call_ended", () => {
       console.log("call ended");
-      setIsCalling(false);
-      setCallStatus("Call ended");
-      setAgentState("Idle");
+      setCallState({
+        isCalling: false,
+        callStatus: "Call ended",
+        agentState: "Idle"
+      });
     });
     
     retellWebClient.on("agent_start_talking", () => {
       console.log("agent_start_talking");
-      setAgentState("Speaking");
+      setCallState({ agentState: "Speaking" });
     });
     
     retellWebClient.on("agent_stop_talking", () => {
       console.log("agent_stop_talking");
-      setAgentState("Listening");
+      setCallState({ agentState: "Listening" });
     });
     
     retellWebClient.on("error", (error: any) => {
       console.error("An error occurred:", error);
-      setCallStatus(`Error: ${error?.message || 'Unknown error occurred'}`);
-      setCallId(null);
-      setAgentState("Idle");
+      setCallState({
+        callStatus: `Error: ${error?.message || 'Unknown error occurred'}`,
+        callId: null,
+        agentState: "Idle"
+      });
       retellWebClient.stopCall();
     });
 
-    // Cleanup listeners on unmount
     return () => {
       retellWebClient.removeAllListeners();
     };
   }, []);
 
   const toggleConversation = async () => {
-    if (isCalling) {
+    const currentState = $callState.get();
+    
+    if (currentState.isCalling) {
       try {
         await retellWebClient.stopCall();
       } catch (err) {
         console.error("Error stopping call:", err);
-        setCallStatus("Error stopping call");
+        setCallState({ callStatus: "Error stopping call" });
       }
     } else {
       try {
-        setCallStatus("Initiating call...");
-        setCallId(null);
+        setCallState({
+          callStatus: "Initiating call...",
+          callId: null
+        });
         
         const response = await fetch(`${window.location.origin}/api/create-web-call`, {
           method: "POST",
@@ -95,35 +99,37 @@ export default function WebCall({ agentId }: WebCallProps) {
           accessToken: data.access_token,
         });
         
-        setIsCalling(true);
+        setCallState({ isCalling: true });
       } catch (err: any) {
         console.error("Failed to start call:", err);
-        setCallStatus(`Failed to start call: ${err?.message || 'Unknown error'}`);
-        setCallId(null);
-        setAgentState("Idle");
+        setCallState({
+          callStatus: `Failed to start call: ${err?.message || 'Unknown error'}`,
+          callId: null,
+          agentState: "Idle"
+        });
       }
     }
   };
 
   return (
-    <div className="webcall-container">
+    <div className="webcall-container" id="hidden-webcall">
       <div className="call-info">
         <div className="status-item">
           <span className="label">Status:</span>
-          <span className={`value ${callStatus.toLowerCase().replace(/\s+/g, '-')}`}>
-            {callStatus}
+          <span className={`value ${currentState.callStatus.toLowerCase().replace(/\s+/g, '-')}`}>
+            {currentState.callStatus}
           </span>
         </div>
         <div className="status-item">
           <span className="label">Agent State:</span>
-          <span className={`value ${agentState.toLowerCase()}`}>
-            {agentState}
+          <span className={`value ${currentState.agentState.toLowerCase()}`}>
+            {currentState.agentState}
           </span>
         </div>
-        {callId && (
+        {currentState.callId && (
           <div className="status-item">
             <span className="label">Call ID:</span>
-            <span className="value">{callId}</span>
+            <span className="value">{currentState.callId}</span>
           </div>
         )}
       </div>
@@ -132,7 +138,7 @@ export default function WebCall({ agentId }: WebCallProps) {
         onClick={toggleConversation}
         className="webcall-button"
       >
-        {isCalling ? "Stop Call" : "Start Call"}
+        {currentState.isCalling ? "Stop Call" : "Start Call"}
       </button>
 
       <style>{`
