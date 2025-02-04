@@ -11,6 +11,7 @@
   "dependencies": {
     "@astrojs/cloudflare": "^12.2.1",
     "@astrojs/react": "^4.2.0",
+    "@astrojs/tailwind": "^5.1.1",
     "@astrojs/vue": "^5.0.6",
     "@nanostores/react": "^0.8.4",
     "@nanostores/vue": "^0.11.0",
