@@ -46,6 +46,7 @@
     "vue": "3.4.30"
   },
   "devDependencies": {
+    "typescript": "^5.7.3",
     "wrangler": "^3.107.3"
   }
 }
