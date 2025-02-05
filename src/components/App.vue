@@ -19,7 +19,7 @@
             <div class="absolute top-0 left-[-100%] w-[120%] h-[100px] bg-gradient-to-r from-transparent via-white/5 to-transparent transform rotate-[-35deg] transition-transform duration-1500 hover:translate-x-[150%]"></div>
           </div>
 
-          <div v-if="!isExpanded" class="absolute top-2 left-2 bg-stone-700/80 backdrop-blur-sm rounded-sm px-2 py-1 text-sm border border-white/10">
+          <div v-if="!isExpanded" class="absolute top-0 left-2 bg-stone-700/80 backdrop-blur-sm rounded-sm px-2 py-1 text-sm border border-white/10">
             {{ tab.tag }}
           </div>
 

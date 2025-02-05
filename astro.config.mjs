@@ -7,7 +7,9 @@ import react from '@astrojs/react';
 
 import vue from '@astrojs/vue';
 
-import tailwindcss from '@tailwindcss/vite';
+import tailwind from "@astrojs/tailwind";
+
+// import tailwindcss from '@tailwindcss/vite';
 
 // https://astro.build/config
 export default defineConfig({
@@ -15,11 +17,14 @@ export default defineConfig({
   output: 'server',
   integrations: [
     react(), 
-    vue()
+    vue(),
+    tailwind({
+      applyBaseStyles: false
+    })
   ],
 
   vite: {
-    plugins: [tailwindcss()],
+    // plugins: [tailwindcss()],
     resolve: {
       // Use react-dom/server.edge instead of react-dom/server.browser for React 19.
       // Without this, MessageChannel from node:worker_threads needs to be polyfilled.
