@@ -58,10 +58,10 @@
                 <!-- Compact User Badge -->
             <button 
                 class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 rounded-md px-4 py-1.5 transition-all duration-200"
-                @click="isEditing = true"
+                @click="isEditing = false"
             >
                 <span class="text-white font-medium text-xl">{{ variables.user_name || 'User' }}</span>
-                <Settings class="w-4 h-4 text-white/50 group-hover:text-white transition-colors" />
+                <!-- <Settings class="w-4 h-4 text-white/50 group-hover:text-white transition-colors" /> -->
             </button>
             </div>
         </div>
@@ -152,43 +152,43 @@ const variables = useStore($retellVariables)
 
 // Initialize form values from store
 onMounted(() => {
-    // Try to load from localStorage first
-    const savedVariables = localStorage.getItem(STORAGE_KEY)
+    // // Try to load from localStorage first
+    // const savedVariables = localStorage.getItem(STORAGE_KEY)
     
-    if (savedVariables) {
-        const parsed = JSON.parse(savedVariables)
-        userName.value = parsed.find((v: any) => v.key === 'user_name')?.value || ''
-        userPhone.value = parsed.find((v: any) => v.key === 'user_phone')?.value || ''
-        walletAddress.value = parsed.find((v: any) => v.key === 'wallet_address')?.value || ''
+    // if (savedVariables) {
+    //     const parsed = JSON.parse(savedVariables)
+    //     userName.value = parsed.find((v: any) => v.key === 'user_name')?.value || ''
+    //     userPhone.value = parsed.find((v: any) => v.key === 'user_phone')?.value || ''
+    //     walletAddress.value = parsed.find((v: any) => v.key === 'wallet_address')?.value || ''
         
-        // Restore to store immediately
-        updateVariable('user_name', userName.value)
-        updateVariable('user_phone', userPhone.value)
-        updateVariable('wallet_address', walletAddress.value)
-    } else {
-        // Initialize with default variables
-        const defaults = {
-            user_name: 'Steve',
-            user_phone: '',
-            wallet_address: '0x0'
-        }
+    //     // Restore to store immediately
+    //     updateVariable('user_name', userName.value)
+    //     updateVariable('user_phone', userPhone.value)
+    //     updateVariable('wallet_address', walletAddress.value)
+    // } else {
+    //     // Initialize with default variables
+    //     const defaults = {
+    //         user_name: 'Steve',
+    //         user_phone: '',
+    //         wallet_address: '0x0'
+    //     }
         
-        userName.value = defaults.user_name
-        userPhone.value = defaults.user_phone
-        walletAddress.value = defaults.wallet_address
+    //     userName.value = defaults.user_name
+    //     userPhone.value = defaults.user_phone
+    //     walletAddress.value = defaults.wallet_address
         
-        // Set default values in store
-        Object.entries(defaults).forEach(([key, value]) => {
-            setVariable(key, value)
-        })
+    //     // Set default values in store
+    //     Object.entries(defaults).forEach(([key, value]) => {
+    //         setVariable(key, value)
+    //     })
         
-        // Save defaults to localStorage
-        localStorage.setItem(STORAGE_KEY, JSON.stringify([
-            { key: 'user_name', value: defaults.user_name },
-            { key: 'user_phone', value: defaults.user_phone },
-            { key: 'wallet_address', value: defaults.wallet_address }
-        ]))
-    }
+    //     // Save defaults to localStorage
+    //     localStorage.setItem(STORAGE_KEY, JSON.stringify([
+    //         { key: 'user_name', value: defaults.user_name },
+    //         { key: 'user_phone', value: defaults.user_phone },
+    //         { key: 'wallet_address', value: defaults.wallet_address }
+    //     ]))
+    // }
 })
 
 const updateVariable = (key: string, value: string) => {
@@ -196,16 +196,16 @@ const updateVariable = (key: string, value: string) => {
 }
 
 const handleSave = () => {
-    updateVariable('user_name', userName.value)
-    updateVariable('user_phone', userPhone.value)
-    updateVariable('wallet_address', walletAddress.value)
+    // updateVariable('user_name', userName.value)
+    // updateVariable('user_phone', userPhone.value)
+    // updateVariable('wallet_address', walletAddress.value)
     
-    // Save to localStorage
-    localStorage.setItem(STORAGE_KEY, JSON.stringify([
-        { key: 'user_name', value: userName.value },
-        { key: 'user_phone', value: userPhone.value },
-        { key: 'wallet_address', value: walletAddress.value }
-    ]))
+    // // Save to localStorage
+    // localStorage.setItem(STORAGE_KEY, JSON.stringify([
+    //     { key: 'user_name', value: userName.value },
+    //     { key: 'user_phone', value: userPhone.value },
+    //     { key: 'wallet_address', value: walletAddress.value }
+    // ]))
     
     isEditing.value = false
 }

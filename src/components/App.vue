@@ -3,7 +3,7 @@
     <div class="w-full flex items-center justify-center flex-col gap-y-12 duration-300" :class="[isExpanded ? 'h-[3rem]' : 'h-full']">
       <h1 v-if="!isExpanded" class="text-4xl font-bold">DeCall Demo</h1>
 
-      <div class="w-full" :class="[isExpanded ? 'flex justify-start items-center' : 'max-w-4xl grid grid-cols-3 gap-x-4']">
+      <div class="w-full" :class="[isExpanded ? 'flex justify-start items-center' : 'max-w-4xl grid grid-cols-2 gap-x-4']">
         <button 
           v-for="tab in tabs" 
           :key="tab.key" 
@@ -73,12 +73,12 @@ const tabs = [
     description: 'Register or login with phone number',
     tag: 'Customer'
   },
-  {
-    key: 'call',
-    label: 'Call',
-    description: 'Make a web call to the Business',
-    tag: 'Customer'
-  },
+  // {
+  //   key: 'call',
+  //   label: 'Call',
+  //   description: 'Make a web call to the Business',
+  //   tag: 'Customer'
+  // },
   {
     key: 'calendar',
     label: 'Calendar',

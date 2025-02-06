@@ -105,8 +105,8 @@
                 </Button>
             </div>
 
-            <div class="p-6 flex-1">
-                <div class="space-y-8">
+            <div class="p-6 flex-1 scroll-auto">
+                <div v-if="accountView === 'wallet'" class="space-y-8">
                     <!-- Wallet Balance -->
                     <div class="text-center space-y-1">
                         <p class="text-white/50 text-sm">Wallet Balance</p>
@@ -137,15 +137,26 @@
                                 {{ walletAddress }}
                             </p>
                         </div>
+                        
+                        <Button @click="accountView = 'call'" :disabled="callDisabled" class="w-full p-4 bg-stone-800/50 rounded-lg border border-white/10">
+                            <Phone class="w-4 h-4 mr-2" />
+                            Call Now
+                        </Button>
+                        
                     </div>
+                </div>
+
+                <div v-if="accountView === 'call'" class="space-y-8">
+                    <CallCard />
                 </div>
             </div>
         </div>
+
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -160,13 +171,15 @@ import {
 } from 'lucide-vue-next'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 import { useClipboard } from '@vueuse/core'
+import CallCard from './CallCard.vue'
 
 const currentState = ref('phone')
-const phoneNumber = ref('')
+const phoneNumber = ref('0123')
 const name = ref('')
 const walletAddress = ref('')
 const balance = ref('0.0000')
 const supabaseWallet = ref(null)
+const accountView = ref('wallet')
 
 const { copy } = useClipboard()
 
@@ -189,6 +202,11 @@ if (!supabaseUrl || !supabaseAnonKey) {
 }
 const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
+import { setVariable } from '../stores/retellVariables'
+
+const callDisabled = computed(() => {
+    return !supabaseWallet.value.wallet_address || !supabaseWallet.value.phone_number || Number(supabaseWallet.value.balance) < 0.001
+})
 
 
 // Generate QR code for wallet address
@@ -196,6 +214,7 @@ const qrCode = useQRCode(walletAddress)
 
 const isLoading = ref(false)
 const isRegistering = ref(false)
+
 
 const transitionToAccount = () => {
     setTimeout(() => {
@@ -296,7 +315,12 @@ const checkUserExists = async (phone) => {
         balance.value = supabaseWallet.value.balance
         walletAddress.value = supabaseWallet.value.wallet_address
         console.log('supabaseWallet', supabaseWallet.value)
+
+        setVariable('user_name', supabaseWallet.value.name);
+        setVariable('user_phone', supabaseWallet.value.phone_number);
+        setVariable('wallet_address', supabaseWallet.value.wallet_address);
     
+
         return supabaseWallet.value;
     } catch (error) {
         console.log('Error checking user:', error)
