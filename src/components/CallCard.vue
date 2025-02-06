@@ -12,7 +12,7 @@
                 <button 
                     class="relative group w-[220px] h-[220px] rounded-full flex flex-col justify-center items-center gap-4 transition-all duration-200"
                     :class="callState.isCalling ? 'bg-green-500/20 border-green-500/30' : 'bg-white/10 hover:bg-white/20 border-white/20'"
-                    :disabled="callState.isCalling"
+                    :disabled="callState.isCalling || callDisabled"
                     @click="handleCall"
                 >
                     <div class="relative flex flex-col items-center gap-2">
@@ -60,7 +60,7 @@
                 class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 rounded-md px-4 py-1.5 transition-all duration-200"
                 @click="isEditing = false"
             >
-                <span class="text-white font-medium text-xl">{{ variables.user_name || 'User' }}</span>
+                <span class="text-white font-medium text-xl">{{ variables.user_name || '-' }}</span>
                 <!-- <Settings class="w-4 h-4 text-white/50 group-hover:text-white transition-colors" /> -->
             </button>
             </div>
@@ -131,7 +131,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useStore } from '@nanostores/vue'
 import { Phone, PhoneOff, Loader2, Settings, User } from 'lucide-vue-next'
 import { Input } from "@/components/ui/input"
@@ -150,8 +150,16 @@ const walletAddress = ref('')
 const callState = useStore($callState)
 const variables = useStore($retellVariables)
 
+const callDisabled = computed(() => {
+    return !variables.value.wallet_address || !variables.value.user_phone || Number(variables.value.balance) < 0.001
+})
+
 // Initialize form values from store
 onMounted(() => {
+
+    console.log('variables', variables.value)
+
+
     // // Try to load from localStorage first
     // const savedVariables = localStorage.getItem(STORAGE_KEY)
     

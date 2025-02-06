@@ -14,13 +14,13 @@
             >
                 <AccountCard />
             </div>
-            <!-- <div 
+            <div 
                 :key="2" 
                 class="panel h-full w-full max-w-xl flex justify-center items-center transition-opacity duration-300"
                 :class="[activeTab === 'call' ? 'opacity-100' : 'opacity-20 pointer-events-none']"
             >
                 <CallCard />
-            </div> -->
+            </div>
             <div 
                 :key="3" 
                 class="panel h-full w-[calc(100dvw-100px)] px-12 flex justify-center items-center transition-opacity duration-300"

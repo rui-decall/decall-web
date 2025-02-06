@@ -138,10 +138,10 @@
                             </p>
                         </div>
                         
-                        <Button @click="accountView = 'call'" :disabled="callDisabled" class="w-full p-4 bg-stone-800/50 rounded-lg border border-white/10">
+                        <!-- <Button @click="accountView = 'call'" :disabled="callDisabled" class="w-full p-4 bg-stone-800/50 rounded-lg border border-white/10">
                             <Phone class="w-4 h-4 mr-2" />
                             Call Now
-                        </Button>
+                        </Button> -->
                         
                     </div>
                 </div>
@@ -319,7 +319,7 @@ const checkUserExists = async (phone) => {
         setVariable('user_name', supabaseWallet.value.name);
         setVariable('user_phone', supabaseWallet.value.phone_number);
         setVariable('wallet_address', supabaseWallet.value.wallet_address);
-    
+        setVariable('balance', supabaseWallet.value.balance);
 
         return supabaseWallet.value;
     } catch (error) {
