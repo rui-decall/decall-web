@@ -25,10 +25,12 @@
                                 :class="{
                                     'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30': selectedEvent?.status === 'confirmed',
                                     'bg-orange-500/20 text-orange-300 hover:bg-orange-500/30': selectedEvent?.status === 'pending',
-                                    'bg-red-500/20 text-red-300 hover:bg-red-500/30': selectedEvent?.status === 'cancelled'
+                                    'bg-red-500/20 text-red-300 hover:bg-red-500/30': selectedEvent?.status === 'cancelled',
+                                    'bg-gray-500/20 text-gray-300 hover:bg-gray-500/30': selectedEvent?.status === 'pending_cancel'
                                 }"
                             >
                                 {{ selectedEvent?.status }}
+
 
                             </Badge>
                         </div>
@@ -138,6 +140,8 @@ async function fetchBookings() {
 
         if (error) throw error;
         // console.log('Fetched bookings:', data);
+
+        
         
         // Transform bookings into calendar events
         const events = data.map(booking => ({
@@ -145,7 +149,7 @@ async function fetchBookings() {
             title: `Call with ${booking.users.phone_number}`,
             start: `${booking.booking_date}T${booking.from_time}`,
             end: `${booking.booking_date}T${booking.to_time}`,
-            backgroundColor: booking.status === 'confirmed' ? 'rgba(59, 130, 246, 0.8)' : booking.status === 'pending' ? 'rgba(251, 146, 60, 0.8)' : 'rgba(239, 68, 68, 0.8)',
+            backgroundColor: booking.status === 'confirmed' ? 'rgba(59, 130, 246, 0.8)' : booking.status === 'pending' ? 'rgba(251, 146, 60, 0.8)' : booking.status === 'cancelled' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(75, 85, 99, 0.8)',
             extendedProps: {
                 status: booking.status,
                 phoneNumber: booking.users.phone_number,
