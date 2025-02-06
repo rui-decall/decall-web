@@ -94,7 +94,7 @@
                             v-model="userPhone" 
                             class="mt-1.5 bg-stone-800 border-white/20" 
                             placeholder="Enter phone"
-                            @change="updateVariable('phone', $event.target.value)"
+                            @change="updateVariable('user_phone', $event.target.value)"
                         />
                     </div>
 
@@ -158,23 +158,23 @@ onMounted(() => {
     if (savedVariables) {
         const parsed = JSON.parse(savedVariables)
         userName.value = parsed.find((v: any) => v.key === 'user_name')?.value || ''
-        userPhone.value = parsed.find((v: any) => v.key === 'phone')?.value || ''
+        userPhone.value = parsed.find((v: any) => v.key === 'user_phone')?.value || ''
         walletAddress.value = parsed.find((v: any) => v.key === 'wallet_address')?.value || ''
         
         // Restore to store immediately
         updateVariable('user_name', userName.value)
-        updateVariable('phone', userPhone.value)
+        updateVariable('user_phone', userPhone.value)
         updateVariable('wallet_address', walletAddress.value)
     } else {
         // Initialize with default variables
         const defaults = {
             user_name: 'Steve',
-            phone: '',
+            user_phone: '',
             wallet_address: '0x0'
         }
         
         userName.value = defaults.user_name
-        userPhone.value = defaults.phone
+        userPhone.value = defaults.user_phone
         walletAddress.value = defaults.wallet_address
         
         // Set default values in store
@@ -185,7 +185,7 @@ onMounted(() => {
         // Save defaults to localStorage
         localStorage.setItem(STORAGE_KEY, JSON.stringify([
             { key: 'user_name', value: defaults.user_name },
-            { key: 'phone', value: defaults.phone },
+            { key: 'user_phone', value: defaults.user_phone },
             { key: 'wallet_address', value: defaults.wallet_address }
         ]))
     }
@@ -197,13 +197,13 @@ const updateVariable = (key: string, value: string) => {
 
 const handleSave = () => {
     updateVariable('user_name', userName.value)
-    updateVariable('phone', userPhone.value)
+    updateVariable('user_phone', userPhone.value)
     updateVariable('wallet_address', walletAddress.value)
     
     // Save to localStorage
     localStorage.setItem(STORAGE_KEY, JSON.stringify([
         { key: 'user_name', value: userName.value },
-        { key: 'phone', value: userPhone.value },
+        { key: 'user_phone', value: userPhone.value },
         { key: 'wallet_address', value: walletAddress.value }
     ]))
     
@@ -215,7 +215,7 @@ const handleCall = async () => {
     if (webCallContainer) {
         const webCallButton = webCallContainer.querySelector('.webcall-button')
         if (webCallButton) {
-            webCallButton.click()
+            (webCallButton as HTMLElement).click()
         }
     }
 }
