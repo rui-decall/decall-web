@@ -162,7 +162,7 @@ import { useQRCode } from '@vueuse/integrations/useQRCode'
 import { useClipboard } from '@vueuse/core'
 
 const currentState = ref('phone')
-const phoneNumber = ref('60123')
+const phoneNumber = ref('')
 const name = ref('')
 const walletAddress = ref('')
 const balance = ref('0.0000')

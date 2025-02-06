@@ -127,7 +127,7 @@ async function fetchBookings() {
             .not('status', 'eq', 'cancelled');
 
         if (error) throw error;
-        console.log('Fetched bookings:', data);
+        // console.log('Fetched bookings:', data);
         
         // Transform bookings into calendar events
         const events = data.map(booking => ({
