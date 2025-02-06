@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full max-w-sm bg-white/10 rounded-xl border border-white/20 aspect-[3/4] flex flex-col">
+    <div class="w-full max-w-xl bg-white/10 rounded-xl border border-white/20 aspect-[3/4] flex flex-col">
         <!-- Phone Number Entry State -->
         <div v-if="currentState === 'phone'" class="flex flex-col h-full">
             <div class="px-6 pt-6 pb-4 border-b border-white/20">
