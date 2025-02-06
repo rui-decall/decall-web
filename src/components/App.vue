@@ -1,7 +1,27 @@
 <template>
   <main class="bg-stone-900 w-screen h-[100dvh] max-h-[100dvh] text-white flex flex-col justify-start items-center overflow-hidden">
     <div class="w-full flex items-center justify-center flex-col gap-y-12 duration-300" :class="[isExpanded ? 'h-[3rem]' : 'h-full']">
-      <h1 v-if="!isExpanded" class="text-4xl font-bold">DeCall Demo</h1>
+
+      <div v-if="!isExpanded" >
+        
+        <h1 class="text-4xl font-bold mb-8">Payphone Demo</h1>
+        <p class="mb-8">This demo allows you to make a call to schedule a hair cut at the <strong>Ojisan Barber Salon</strong> salon, a fictional business. </p>
+  
+        <div>
+          <ul class="list-disc list-inside">
+            <li>You must register first to make a call.</li>
+            <li>You will have a wallet after registration.</li>
+            <li>Send ETH to your wallet to fund it for your haircut appointment.</li>
+            <li>You can make an actual call to the phone number, or use the web call to schedule the appointment.</li>
+          </ul>
+        </div>
+
+        <div class="w-full max-w-sm">
+          <p>Phone Call</p>
+          <a class="text-blue-500 underline" href="tel:+1(419)7806507">+(419)780-6507</a>
+        </div>
+
+      </div>
 
       <div class="w-full" :class="[isExpanded ? 'flex justify-start items-center' : 'max-w-4xl grid grid-cols-3 gap-x-4']">
         <button 
@@ -75,8 +95,8 @@ const tabs = [
   },
   {
     key: 'call',
-    label: 'Call',
-    description: 'Make a web call to the Business',
+    label: 'Web Call',
+    description: 'Call `Ojisan Barber Salon` to schedule an appointment',
     tag: 'Customer'
   },
   {
