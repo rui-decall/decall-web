@@ -24,10 +24,12 @@
                             <Badge 
                                 :class="{
                                     'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30': selectedEvent?.status === 'confirmed',
-                                    'bg-orange-500/20 text-orange-300 hover:bg-orange-500/30': selectedEvent?.status === 'pending'
+                                    'bg-orange-500/20 text-orange-300 hover:bg-orange-500/30': selectedEvent?.status === 'pending',
+                                    'bg-red-500/20 text-red-300 hover:bg-red-500/30': selectedEvent?.status === 'cancelled'
                                 }"
                             >
                                 {{ selectedEvent?.status }}
+
                             </Badge>
                         </div>
                     </div>
@@ -49,9 +51,15 @@
                             <a v-if="selectedEvent?.receipt" :href="selectedEvent?.receipt" target="_blank">Payment Link</a>
                             <p v-else>No payment link</p>
                         </div>
+                    </div>
 
-
-
+                    <!-- Cancel Receipt -->
+                    <div v-if="selectedEvent?.cancelReceipt" class="space-y-1">
+                        <Label class="text-white/50 text-sm">Cancelled Receipt</Label>
+                        <div class="flex items-center gap-2 text-white/90">
+                            <Link class="w-4 h-4 text-white/50" />
+                            <a :href="selectedEvent?.cancelReceipt" target="_blank">Refund Payment Link</a>
+                        </div>
                     </div>
 
 
@@ -126,7 +134,7 @@ async function fetchBookings() {
         const { data, error } = await supabase
             .from('bookings')
             .select('*, users(*)')
-            .not('status', 'eq', 'cancelled');
+            // .not('status', 'eq', 'cancelled');
 
         if (error) throw error;
         // console.log('Fetched bookings:', data);
@@ -137,12 +145,13 @@ async function fetchBookings() {
             title: `Call with ${booking.users.phone_number}`,
             start: `${booking.booking_date}T${booking.from_time}`,
             end: `${booking.booking_date}T${booking.to_time}`,
-            backgroundColor: booking.status === 'confirmed' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(251, 146, 60, 0.8)',
+            backgroundColor: booking.status === 'confirmed' ? 'rgba(59, 130, 246, 0.8)' : booking.status === 'pending' ? 'rgba(251, 146, 60, 0.8)' : 'rgba(239, 68, 68, 0.8)',
             extendedProps: {
                 status: booking.status,
                 phoneNumber: booking.users.phone_number,
                 remark: booking?.remark,
                 receipt: booking?.cb_commerce_logs?.data?.id ? `https://commerce.coinbase.com/pay/${booking?.cb_commerce_logs?.data?.id}/receipt` : null,
+                cancelReceipt: booking?.cancelled_tx ? `https://basescan.org/tx/${booking?.cancelled_tx}` : null,
             },
         }));
 
