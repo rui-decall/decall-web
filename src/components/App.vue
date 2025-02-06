@@ -2,47 +2,75 @@
   <main class="bg-stone-900 w-screen h-[100dvh] max-h-[100dvh] text-white flex flex-col justify-start items-center overflow-hidden">
     <div class="w-full flex items-center justify-center flex-col gap-y-12 duration-300" :class="[isExpanded ? 'h-[3rem]' : 'h-full']">
 
-      <div v-if="!isExpanded" class="max-w-xl text-center px-4">
+      <div v-if="!isExpanded" class="max-w-3xl text-left px-4">
         
-        <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
+        <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent text-center">
           Payphone Demo
         </h1>
         
-        <p class="text-sm mb-6 text-white/80">
+        <p class="text-sm mb-6 text-white/80 text-center">
           Make a call to schedule your haircut at <strong class="text-white font-medium">Ojisan Barber Salon</strong>
         </p>
   
-        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4 mb-6">
-          <div class="grid grid-cols-1 gap-2 text-sm text-white/80">
-            <div class="flex items-center gap-2">
-              <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-              Register first to make a call
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full mb-6">
+          <!-- Instructions Card -->
+          <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
+            <h3 class="font-medium mb-3 text-white">Instructions</h3>
+            <div class="grid grid-cols-1 gap-3 text-sm text-white/80">
+              <div class="flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5"></div>
+                <span>Register first to make a call</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5"></div>
+                <span>You will have a wallet after registration</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5"></div>
+                <span>Send ETH to your wallet to fund it</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5"></div>
+                <span>Use phone or web call to schedule</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5"></div>
+                <span>Phone call won't work if you don't have a wallet!</span>
+              </div>
             </div>
-            <div class="flex items-center gap-2">
-              <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-              You will have a wallet after registration
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-              Send ETH to your wallet to fund it
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-              Use phone or web call to schedule
-            </div>
-            <div class="flex items-center gap-2">
-              <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
-              Phone call won't work if you don't have a wallet!
+          </div>
+
+          <!-- Operating Hours Card -->
+          <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-6">
+            <h3 class="font-medium mb-3 text-white">Operating Hours</h3>
+            <div class="grid grid-cols-1 gap-3 text-sm text-white/80">
+              <div class="flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-emerald-400 mt-1.5"></div>
+                <span>Monday - Saturday: 9:00 AM - 9:00 PM</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-yellow-400 mt-1.5"></div>
+                <span>Break Time: 3:00 PM - 6:00 PM</span>
+              </div>
+              <div class="flex items-start gap-2">
+                <div class="w-1.5 h-1.5 rounded-full bg-red-400 mt-1.5"></div>
+                <span>Sunday: Closed</span>
+              </div>
+              <div class="mt-2">
+                You can schedule, modify, or cancel your appointment through our phone system.
+              </div>
             </div>
           </div>
         </div>
 
-        <div class="inline-flex items-center gap-3 bg-stone-800/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
-          <span class="text-white/60 text-sm">Phone:</span>
-          <a class="text-blue-400 hover:text-blue-300 transition-colors" 
-             href="tel:+1(419)7806507">
-            +1 (419) 780-6507
-          </a>
+        <div class="flex justify-center w-full">
+          <div class="inline-flex items-center gap-3 bg-stone-800/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
+            <span class="text-white/60 text-sm">Phone:</span>
+            <a class="text-blue-400 hover:text-blue-300 transition-colors" 
+               href="tel:+1(419)7806507">
+              +1 (419) 780-6507
+            </a>
+          </div>
         </div>
 
       </div>
@@ -104,7 +132,7 @@
     </div>
 
     <div :class="[
-      isExpanded ? 'h-[calc(100dvh-6rem)] w-full flex justify-center items-center' : 'h-[0px] overflow-hidden opacity-0',
+      isExpanded ? 'h-[calc(100dvh-3rem)] w-full flex justify-center items-center' : 'h-[0px] overflow-hidden opacity-0',
       'duration-300 transition-all ease-in-out'
     ]">
       <section :class="[
@@ -116,7 +144,7 @@
     </div>
 
 
-    <button v-if="isExpanded" class="absolute bottom-12 w-14 h-14 bg-white/20 border border-white/50 rounded-full p-2 flex justify-center items-center z-50 pointer-events-auto hover:scale-110 transition-all duration-200" @click="isExpanded = !isExpanded">
+    <button v-if="isExpanded" class="absolute bottom-6 w-12 h-12 bg-white/20 border border-white/50 rounded-full p-2 flex justify-center items-center z-50 pointer-events-auto hover:scale-110 transition-all duration-200" @click="isExpanded = !isExpanded">
         <X class="w-8 h-8 text-white" />
     </button>
 

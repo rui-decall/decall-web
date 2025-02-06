@@ -1,6 +1,22 @@
 <template>
-    <div class="w-full h-[calc(100dvh-200px)] max-h-[70vh] bg-white/10 rounded-2xl border border-white/20 flex flex-col overflow-hidden">
-        <div class="flex-1 p-6 overflow-hidden">
+    <!-- Status filters moved outside the card -->
+    <div class="w-full flex flex-col gap-6 h-full pt-4">
+        <!-- Status filters styled as pills -->
+        <div class="flex items-center gap-3">
+            <Button
+                v-for="status in statusFilters"
+                :key="status.value"
+                :class="getStatusClasses(status)"
+                variant="outline"
+                size="sm"
+                @click="toggleStatus(status)"
+            >
+                {{ status.label }} ({{ getStatusCount(status.value) }})
+            </Button>
+        </div>
+
+        <!-- Calendar card -->
+        <div class="w-full h-[calc(100dvh-13rem)] max-h-[calc(100dvh-13rem)] bg-zinc-900/50 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-sm">
             <div id="calendar" class="ec-dark h-full"></div>
         </div>
 
@@ -131,19 +147,55 @@ let calendar;
 const showDialog = ref(false);
 const selectedEvent = ref(null);
 
+// Add status filters state
+const statusFilters = ref([
+    { label: 'Confirmed', value: 'confirmed', enabled: true },
+    { label: 'Pending', value: 'pending', enabled: true },
+    { label: 'Cancelled', value: 'cancelled', enabled: false },
+    { label: 'Pending Cancel', value: 'pending_cancel', enabled: true }
+]);
+
+// Move status classes to a computed function for better organization
+function getStatusClasses(status) {
+    return {
+        'bg-blue-500/10 text-blue-400 border-blue-500/50 hover:bg-blue-500/20': status.value === 'confirmed',
+        'bg-orange-500/10 text-orange-400 border-orange-500/50 hover:bg-orange-500/20': status.value === 'pending',
+        'bg-red-500/10 text-red-400 border-red-500/50 hover:bg-red-500/20': status.value === 'cancelled',
+        'bg-gray-500/10 text-gray-400 border-gray-500/50 hover:bg-gray-500/20': status.value === 'pending_cancel',
+        'opacity-40': !status.enabled,
+        'rounded-full px-3 py-0.5 border transition-colors text-sm': true
+    }
+}
+
+// Toggle status filter
+function toggleStatus(status) {
+    status.enabled = !status.enabled;
+    updateCalendarEvents();
+}
+
+// Update calendar events based on filters
+function updateCalendarEvents() {
+    const enabledStatuses = statusFilters.value
+        .filter(status => status.enabled)
+        .map(status => status.value);
+    
+    const filteredEvents = bookings.value.filter(event => 
+        enabledStatuses.includes(event.extendedProps.status)
+    );
+    
+    if (calendar) {
+        calendar.setOption('events', filteredEvents);
+    }
+}
+
 async function fetchBookings() {
     try {
         const { data, error } = await supabase
             .from('bookings')
-            .select('*, users(*)')
-            // .not('status', 'eq', 'cancelled');
+            .select('*, users(*)');
 
         if (error) throw error;
-        // console.log('Fetched bookings:', data);
-
         
-        
-        // Transform bookings into calendar events
         const events = data.map(booking => ({
             id: booking.id,
             title: `Call with ${booking.users.name ? booking.users.name : 'User'}`,
@@ -159,16 +211,10 @@ async function fetchBookings() {
             },
         }));
 
-        // Store transformed events
-        bookings.value = events; // Changed to store the transformed events
-        console.log('events', events);
+        bookings.value = events;
+        updateCalendarEvents(); // Update with filters instead of setting directly
         
-        // Update calendar if it exists
-        if (calendar) {
-            calendar.setOption('events', events);
-        }
-        
-        return events; // Return the transformed events
+        return events;
     } catch (error) {
         console.error('Error fetching bookings:', error);
         return [];
@@ -211,6 +257,12 @@ function formatTime(dateStr) {
         minute: '2-digit',
         hour12: true
     });
+}
+
+function getStatusCount(statusValue) {
+    return bookings.value.filter(event => 
+        event.extendedProps.status === statusValue
+    ).length;
 }
 
 onMounted(async () => {
@@ -260,36 +312,64 @@ onMounted(async () => {
 </script>
 
 <style>
-/* Override calendar styles to match your theme */
+/* Calendar theme updates */
 .ec {
     --ec-bg-color: transparent;
-    --ec-border-color: rgba(255, 255, 255, 0.2);
-    --ec-today-bg-color: rgba(255, 255, 255, 0.05);
+    --ec-border-color: rgba(255, 255, 255, 0.1);
+    --ec-today-bg-color: rgba(255, 255, 255, 0.03);
     --ec-event-bg-color: rgba(59, 130, 246, 0.8);
     --ec-event-border-color: transparent;
     --ec-selection-bg-color: rgba(59, 130, 246, 0.2);
     --ec-text-color: rgba(255, 255, 255, 0.9);
     --ec-toolbar-text-color: rgba(255, 255, 255, 0.7);
     font-family: inherit;
+    height: 100% !important;
+    padding: 0.75rem;
+}
+
+/* Toolbar buttons styling */
+.ec .ec-toolbar {
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.5rem;
 }
 
 .ec .ec-toolbar button {
     color: rgba(255, 255, 255, 0.7);
-    border-color: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.1);
+    border-radius: 0.375rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.875rem;
+    transition: all 0.2s;
 }
 
 .ec .ec-toolbar button:hover {
-    background-color: rgba(255, 255, 255, 0.1);
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
 .ec .ec-toolbar button.ec-active {
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
 }
 
-/* Make scrollbars match theme */
+/* Calendar header styling */
+.ec .ec-header {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: var(--ec-bg-color);
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.ec .ec-header th {
+    padding: 0.5rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Scrollbar styling */
 .ec ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
 }
 
 .ec ::-webkit-scrollbar-track {
@@ -297,15 +377,15 @@ onMounted(async () => {
 }
 
 .ec ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
 }
 
 .ec ::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.2);
 }
 
-/* Add these new styles to handle overflow */
+/* Grid styling */
 .ec-time-grid, .ec-day-grid, .ec-list {
     max-height: 100%;
     overflow: auto;
@@ -318,11 +398,15 @@ onMounted(async () => {
     z-index: 1;
 }
 
-.ec-toolbar {
-    background: var(--ec-bg-color);
-    position: sticky;
-    top: 0;
-    z-index: 2;
+/* Event styling */
+.ec-event {
+    border-radius: 4px;
+    padding: 2px 4px;
+}
+
+/* Today highlight */
+.ec-today {
+    background-color: rgba(255, 255, 255, 0.03) !important;
 }
 
 /* Add these dialog-specific styles */
