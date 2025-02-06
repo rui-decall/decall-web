@@ -175,7 +175,7 @@ import { useClipboard } from '@vueuse/core'
 import CallCard from './CallCard.vue'
 
 const currentState = ref('phone')
-const phoneNumber = ref('0123')
+const phoneNumber = ref('')
 const name = ref('')
 const walletAddress = ref('')
 const balance = ref('0.0000')

@@ -64,10 +64,12 @@
                     <!-- <Settings class="w-4 h-4 text-white/50 group-hover:text-white transition-colors" /> -->
                 </button>
             </div>
-            <div v-if="!variables.user_name" class="flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-lg">
+            <Button @click="setActiveTab('register')" v-if="!variables.user_name" class="flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-lg">
                 <AlertTriangle class="w-4 h-4" />
                 <span class="text-sm">Please register/login first</span>
-            </div>
+            </Button>
+
+
         </div>
 
         <!-- Edit State (RetellVariables functionality) -->
@@ -143,6 +145,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { $callState } from '../stores/callState'
 import { $retellVariables, setVariable } from '../stores/retellVariables'
+import { $activeTab, setActiveTab } from '../stores/ui'
 
 const STORAGE_KEY = 'retell_variables'
 const isEditing = ref(false)
