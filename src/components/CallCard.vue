@@ -64,7 +64,11 @@
                     <!-- <Settings class="w-4 h-4 text-white/50 group-hover:text-white transition-colors" /> -->
                 </button>
             </div>
-            <Button @click="setActiveTab('register')" v-if="!variables.user_name" class="flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-lg">
+            <Button 
+                v-if="!isLoggedIn" 
+                @click="setActiveTab('register')" 
+                class="flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-lg"
+            >
                 <AlertTriangle class="w-4 h-4" />
                 <span class="text-sm">Please register/login first</span>
             </Button>
@@ -137,7 +141,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import { useStore } from '@nanostores/vue'
 import { Phone, PhoneOff, Loader2, Settings, User, AlertTriangle } from 'lucide-vue-next'
 import { Input } from "@/components/ui/input"
@@ -147,7 +151,7 @@ import { $callState } from '../stores/callState'
 import { $retellVariables, setVariable } from '../stores/retellVariables'
 import { $activeTab, setActiveTab } from '../stores/ui'
 
-const STORAGE_KEY = 'retell_variables'
+const STORAGE_KEY = 'payphone_user'
 const isEditing = ref(false)
 const userName = ref('')
 const userPhone = ref('')
@@ -159,6 +163,10 @@ const variables = useStore($retellVariables)
 
 const callDisabled = computed(() => {
     return !variables.value.wallet_address || !variables.value.user_phone || Number(variables.value.balance) < 0.001
+})
+
+const isLoggedIn = computed(() => {
+  return !!variables.value.user_name && !!variables.value.wallet_address
 })
 
 // Initialize form values from store
@@ -234,4 +242,13 @@ const handleCall = async () => {
         }
     }
 }
+
+watch(() => variables.value.user_name, (newVal) => {
+  if (!newVal) {
+    // Reset call state when user signs out
+    if (callState.value.isCalling) {
+      handleCall() // This will end the call if one is in progress
+    }
+  }
+})
 </script> 

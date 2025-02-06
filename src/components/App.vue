@@ -2,23 +2,47 @@
   <main class="bg-stone-900 w-screen h-[100dvh] max-h-[100dvh] text-white flex flex-col justify-start items-center overflow-hidden">
     <div class="w-full flex items-center justify-center flex-col gap-y-12 duration-300" :class="[isExpanded ? 'h-[3rem]' : 'h-full']">
 
-      <div v-if="!isExpanded" >
+      <div v-if="!isExpanded" class="max-w-xl text-center px-4">
         
-        <h1 class="text-4xl font-bold mb-8">Payphone Demo</h1>
-        <p class="mb-8">This demo allows you to make a call to schedule a hair cut at the <strong>Ojisan Barber Salon</strong> salon, a fictional business. </p>
+        <h1 class="text-4xl font-bold mb-4 bg-gradient-to-r from-white to-white/70 bg-clip-text text-transparent">
+          Payphone Demo
+        </h1>
+        
+        <p class="text-sm mb-6 text-white/80">
+          Make a call to schedule your haircut at <strong class="text-white font-medium">Ojisan Barber Salon</strong>
+        </p>
   
-        <div>
-          <ul class="list-disc list-inside">
-            <li>You must register first to make a call.</li>
-            <li>You will have a wallet after registration.</li>
-            <li>Send ETH to your wallet to fund it for your haircut appointment.</li>
-            <li>You can make an actual call to the phone number, or use the web call to schedule the appointment.</li>
-          </ul>
+        <div class="bg-white/5 backdrop-blur-sm border border-white/10 rounded-lg p-4 mb-6">
+          <div class="grid grid-cols-1 gap-2 text-sm text-white/80">
+            <div class="flex items-center gap-2">
+              <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+              Register first to make a call
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+              You will have a wallet after registration
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+              Send ETH to your wallet to fund it
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+              Use phone or web call to schedule
+            </div>
+            <div class="flex items-center gap-2">
+              <div class="w-1.5 h-1.5 rounded-full bg-blue-400"></div>
+              Phone call won't work if you don't have a wallet!
+            </div>
+          </div>
         </div>
 
-        <div class="w-full max-w-sm">
-          <p>Phone Call</p>
-          <a class="text-blue-500 underline" href="tel:+1(419)7806507">+(419)780-6507</a>
+        <div class="inline-flex items-center gap-3 bg-stone-800/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
+          <span class="text-white/60 text-sm">Phone:</span>
+          <a class="text-blue-400 hover:text-blue-300 transition-colors" 
+             href="tel:+1(419)7806507">
+            +1 (419) 780-6507
+          </a>
         </div>
 
       </div>
@@ -39,7 +63,12 @@
             <div class="absolute top-0 left-[-100%] w-[120%] h-[100px] bg-gradient-to-r from-transparent via-white/5 to-transparent transform rotate-[-35deg] transition-transform duration-1500 hover:translate-x-[150%]"></div>
           </div>
 
-          <div v-if="!isExpanded" class="absolute top-0 left-2 bg-stone-700/80 backdrop-blur-sm rounded-sm px-2 py-1 text-sm border border-white/10">
+          <div v-if="!isExpanded" class="absolute top-0 left-2 bg-stone-700/80 backdrop-blur-sm rounded-sm px-2 py-1 text-sm border border-white/10"
+            :class="{
+              'text-blue-300 border-blue-500/20': tab.tag === 'Customer',
+              'text-emerald-300 border-emerald-500/20': tab.tag === 'Business'
+            }"
+          >
             {{ tab.tag }}
           </div>
 
@@ -54,6 +83,23 @@
           </h2>
           <p v-if="!isExpanded" class="text-sm text-white/50">{{ tab.description }}</p>
         </button>
+      </div>
+
+      <!-- Add new status bar -->
+      <div v-if="!isExpanded && variables.user_name" 
+           class="flex items-center gap-4 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 text-sm">
+        <div class="flex items-center gap-2">
+          <User class="w-3 h-3 text-white/50" />
+          <span class="text-white/70">{{ variables.user_name }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <Wallet class="w-3 h-3 text-white/50" />
+          <span class="text-white/70">{{ truncateAddress(variables.wallet_address) }}</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <CircleDollarSign class="w-3 h-3 text-white/50" />
+          <span class="text-white/70">{{ Math.round(variables.balance * 100000) / 100000 }} ETH</span>
+        </div>
       </div>
     </div>
 
@@ -82,9 +128,12 @@ import { ref } from 'vue'
 import { useStore } from '@nanostores/vue'
 import Slides from './Slides.vue'
 import { $activeTab, setActiveTab } from '../stores/ui'
-import { X } from 'lucide-vue-next'
+import { X, User, Wallet, CircleDollarSign } from 'lucide-vue-next'
+import { $retellVariables } from '../stores/retellVariables'
+
 const isExpanded = ref(false)
 const activeTab = useStore($activeTab)
+const variables = useStore($retellVariables)
 
 const tabs = [
   {
@@ -112,5 +161,10 @@ const selectTab = (key) => {
     isExpanded.value = true
   }
   setActiveTab(key)
+}
+
+const truncateAddress = (address) => {
+  if (!address) return '-'
+  return `${address.slice(0, 6)}...${address.slice(-4)}`
 }
 </script>

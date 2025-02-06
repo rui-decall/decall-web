@@ -13,8 +13,9 @@
                     <Input class="mt-2 bg-stone-800 border-white/20" 
                            id="phone" 
                            v-model="phoneNumber" 
-                           placeholder="Enter your phone number"
+                           placeholder="14197806507 (country code without +)"
                            type="tel" />
+                    <p class="text-white/50 text-xs mt-1">Example: 14197806507 for US number +1 (419) 780-6507</p>
                 </div>
             </div>
 
@@ -110,7 +111,7 @@
                     <!-- Wallet Balance -->
                     <div class="text-center">
                         <p class="text-white/50 text-sm">Wallet Balance</p>
-                        <p class="text-white text-2xl font-bold">{{ balance }} ETH</p>
+                        <p class="text-white text-xl font-bold">{{ Math.round(balance * 100000) / 100000 }} ETH</p>
                     </div>
 
                     <!-- QR Code Section -->
@@ -118,14 +119,13 @@
                         <img 
                             :src="qrCode" 
                             alt="Wallet QR Code" 
-                            class="w-48 h-48 bg-white rounded-xl"
+                            class="w-32 h-32 bg-white rounded-xl"
                         />
 
                         <div class="w-full py-2 px-4 bg-stone-800/50 rounded-lg border border-white/10">
                             <div class="flex items-center justify-between mb-2">
                                 <p class="text-white/50 text-sm">Wallet Address</p>
                                 <Button 
-
                                     variant="ghost" 
                                     size="icon" 
                                     class="text-white/70 hover:text-white"
@@ -184,7 +184,6 @@ const accountView = ref('wallet')
 
 const { copy } = useClipboard()
 
-
 import { createClient } from '@supabase/supabase-js'
 import { http, createConfig, connect, getAccount, disconnect, reconnect, readContract, getBalance, sendTransaction, waitForTransactionReceipt } from '@wagmi/core'
 import { formatEther, parseEther } from 'viem'
@@ -205,17 +204,52 @@ const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
 import { setVariable } from '../stores/retellVariables'
 
+const STORAGE_KEY = 'payphone_user'
+
+// Add these after other ref declarations
+const autoLoginAttempted = ref(false)
+
+// Add this function
+const saveToLocalStorage = (userData) => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify({
+    phone: userData.phone_number,
+    name: userData.name,
+    wallet: userData.wallet_address,
+    balance: userData.balance
+  }))
+}
+
+// Add auto-login check
+onMounted(async () => {
+  const savedUser = localStorage.getItem(STORAGE_KEY)
+  if (savedUser && !autoLoginAttempted.value) {
+    autoLoginAttempted.value = true
+    const userData = JSON.parse(savedUser)
+    phoneNumber.value = userData.phone
+    name.value = userData.name
+    
+    try {
+      const response = await checkUserExists(userData.phone)
+      if (response.exists) {
+        currentState.value = 'welcome'
+        transitionToAccount()
+      }
+    } catch (error) {
+      console.error('Auto-login failed:', error)
+      localStorage.removeItem(STORAGE_KEY)
+    }
+  }
+})
+
 const callDisabled = computed(() => {
     return !supabaseWallet.value.wallet_address || !supabaseWallet.value.phone_number || Number(supabaseWallet.value.balance) < 0.001
 })
-
 
 // Generate QR code for wallet address
 const qrCode = useQRCode(walletAddress)
 
 const isLoading = ref(false)
 const isRegistering = ref(false)
-
 
 const transitionToAccount = () => {
     setTimeout(() => {
@@ -276,10 +310,20 @@ const copyAddress = async () => {
 
 const handleSignOut = () => {
     currentState.value = 'phone'
-    // Reset other states as needed
     name.value = ''
     phoneNumber.value = ''
-    // Add any other cleanup or API calls needed
+    walletAddress.value = ''
+    balance.value = '0.0000'
+    supabaseWallet.value = null
+    
+    // Clear local storage
+    localStorage.removeItem(STORAGE_KEY)
+    
+    // Reset Retell variables
+    setVariable('user_name', '')
+    setVariable('user_phone', '')
+    setVariable('wallet_address', '')
+    setVariable('balance', '0')
 }
 
 const fetchWalletBalance = async (_walletAddress) => {
@@ -292,43 +336,37 @@ const fetchWalletBalance = async (_walletAddress) => {
     return balance;
 }
 
-
-// Simulate API calls
+// Modify checkUserExists to save data
 const checkUserExists = async (phone) => {
-    // Replace with actual API call
-    // await new Promise(resolve => setTimeout(resolve, 1000))
-    // return { exists: false }
+  try {
+    const { data: walletData, error: walletError } = await supabase
+      .from('users')
+      .select('*')
+      .eq('phone_number', phone)
+      .single()
 
-    try {
+    if (walletError) throw walletError
 
-        const { data: walletData, error: walletError } = await supabase
-          .from('users')
-          .select('*')
-          .eq('phone_number', phone)
-          .single()
-    
-        supabaseWallet.value = walletData;
-        
-        if (walletError) throw walletError
-        
-        supabaseWallet.value.balance = formatEther(await fetchWalletBalance(supabaseWallet.value.wallet_address))
-        supabaseWallet.value.exists = true;
-        balance.value = supabaseWallet.value.balance
-        walletAddress.value = supabaseWallet.value.wallet_address
-        console.log('supabaseWallet', supabaseWallet.value)
+    supabaseWallet.value = walletData
+    supabaseWallet.value.balance = formatEther(await fetchWalletBalance(supabaseWallet.value.wallet_address))
+    supabaseWallet.value.exists = true
+    balance.value = supabaseWallet.value.balance
+    walletAddress.value = supabaseWallet.value.wallet_address
 
-        setVariable('user_name', supabaseWallet.value.name);
-        setVariable('user_phone', supabaseWallet.value.phone_number);
-        setVariable('wallet_address', supabaseWallet.value.wallet_address);
-        setVariable('balance', supabaseWallet.value.balance);
+    // Save to local storage
+    saveToLocalStorage(supabaseWallet.value)
 
-        return supabaseWallet.value;
-    } catch (error) {
-        console.log('Error checking user:', error)
-        return { exists: false }
-    }
+    // Update Retell variables
+    setVariable('user_name', supabaseWallet.value.name)
+    setVariable('user_phone', supabaseWallet.value.phone_number)
+    setVariable('wallet_address', supabaseWallet.value.wallet_address)
+    setVariable('balance', supabaseWallet.value.balance)
 
-
+    return supabaseWallet.value
+  } catch (error) {
+    console.log('Error checking user:', error)
+    return { exists: false }
+  }
 }
 
 const registerUser = async (userData) => {
@@ -352,7 +390,6 @@ const registerUser = async (userData) => {
         return false;
     }
 }
-
 
 // Simulate getting wallet balance
 const fetchBalance = async () => {
