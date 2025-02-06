@@ -46,8 +46,10 @@
                         <Label class="text-white/50 text-sm">Receipt</Label>
                         <div class="flex items-center gap-2 text-white/90">
                             <Link class="w-4 h-4 text-white/50" />
-                            <a :href="selectedEvent?.receipt" target="_blank">Payment Receipt</a>
+                            <a v-if="selectedEvent?.receipt" :href="selectedEvent?.receipt" target="_blank">Payment Link</a>
+                            <p v-else>No payment link</p>
                         </div>
+
 
 
                     </div>
@@ -140,7 +142,7 @@ async function fetchBookings() {
                 status: booking.status,
                 phoneNumber: booking.users.phone_number,
                 remark: booking?.remark,
-                receipt: `https://commerce.coinbase.com/pay/${booking?.cb_commerce_logs?.data?.id}/receipt`,
+                receipt: booking?.cb_commerce_logs?.data?.id ? `https://commerce.coinbase.com/pay/${booking?.cb_commerce_logs?.data?.id}/receipt` : null,
             },
         }));
 
