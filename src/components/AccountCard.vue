@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full max-w-xl bg-white/10 rounded-xl border border-white/20 aspect-[3/4] flex flex-col">
+    <div class="w-full max-w-sm bg-white/10 rounded-xl border border-white/20 aspect-[3/4] flex flex-col">
         <!-- Phone Number Entry State -->
         <div v-if="currentState === 'phone'" class="flex flex-col h-full">
             <div class="px-6 pt-6 pb-4 border-b border-white/20">
@@ -106,25 +106,26 @@
             </div>
 
             <div class="p-6 flex-1 scroll-auto">
-                <div v-if="accountView === 'wallet'" class="space-y-8">
+                <div v-if="accountView === 'wallet'" class="space-y-4">
                     <!-- Wallet Balance -->
-                    <div class="text-center space-y-1">
+                    <div class="text-center">
                         <p class="text-white/50 text-sm">Wallet Balance</p>
                         <p class="text-white text-2xl font-bold">{{ balance }} ETH</p>
                     </div>
 
                     <!-- QR Code Section -->
-                    <div class="flex flex-col items-center space-y-6">
+                    <div class="flex flex-col items-center space-y-4">
                         <img 
                             :src="qrCode" 
                             alt="Wallet QR Code" 
-                            class="w-48 h-48 bg-white p-3 rounded-xl"
+                            class="w-48 h-48 bg-white rounded-xl"
                         />
 
-                        <div class="w-full p-4 bg-stone-800/50 rounded-lg border border-white/10">
+                        <div class="w-full py-2 px-4 bg-stone-800/50 rounded-lg border border-white/10">
                             <div class="flex items-center justify-between mb-2">
                                 <p class="text-white/50 text-sm">Wallet Address</p>
                                 <Button 
+
                                     variant="ghost" 
                                     size="icon" 
                                     class="text-white/70 hover:text-white"
@@ -134,7 +135,7 @@
                                 </Button>
                             </div>
                             <p class="text-white/90 text-sm font-mono break-all">
-                                {{ walletAddress }}
+                                {{ truncateAddress(walletAddress) }}
                             </p>
                         </div>
                         
@@ -364,4 +365,9 @@ const fetchBalance = async () => {
 onMounted(() => {
     // fetchBalance()
 })
+
+const truncateAddress = (address) => {
+    // return address.slice(0, 8) + '...' + address.slice(-4)
+    return address
+}
 </script> 

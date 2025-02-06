@@ -54,15 +54,19 @@
 
             <div class="flex items-center gap-2">
                 <User class="w-4 h-4 text-white/50" />
-                Calling As: 
-                <!-- Compact User Badge -->
-            <button 
-                class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 rounded-md px-4 py-1.5 transition-all duration-200"
-                @click="isEditing = false"
-            >
-                <span class="text-white font-medium text-xl">{{ variables.user_name || '-' }}</span>
-                <!-- <Settings class="w-4 h-4 text-white/50 group-hover:text-white transition-colors" /> -->
-            </button>
+                    Calling As: 
+                    <!-- Compact User Badge -->
+                <button 
+                    class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 rounded-md px-4 py-1.5 transition-all duration-200"
+                    @click="isEditing = false"
+                >
+                    <span class="text-white font-medium text-xl">{{ variables.user_name || '-' }}</span>
+                    <!-- <Settings class="w-4 h-4 text-white/50 group-hover:text-white transition-colors" /> -->
+                </button>
+            </div>
+            <div v-if="!variables.user_name" class="flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-lg">
+                <AlertTriangle class="w-4 h-4" />
+                <span class="text-sm">Please register/login first</span>
             </div>
         </div>
 
@@ -133,7 +137,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { useStore } from '@nanostores/vue'
-import { Phone, PhoneOff, Loader2, Settings, User } from 'lucide-vue-next'
+import { Phone, PhoneOff, Loader2, Settings, User, AlertTriangle } from 'lucide-vue-next'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
