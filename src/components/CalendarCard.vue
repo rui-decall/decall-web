@@ -41,6 +41,18 @@
                         </div>
                     </div>
 
+                    <!-- Receipt -->
+                    <div class="space-y-1">
+                        <Label class="text-white/50 text-sm">Receipt</Label>
+                        <div class="flex items-center gap-2 text-white/90">
+                            <Link class="w-4 h-4 text-white/50" />
+                            <a :href="selectedEvent?.receipt" target="_blank">Payment Receipt</a>
+                        </div>
+
+
+                    </div>
+
+
                     <!-- Date & Time -->
                     <div class="p-4 bg-zinc-950/50 rounded-lg border border-white/10 space-y-4">
                         <div class="space-y-1">
@@ -52,6 +64,10 @@
                             <p class="text-white/90">
                                 {{ formatTime(selectedEvent?.start) }} - {{ formatTime(selectedEvent?.end) }}
                             </p>
+                        </div>
+                        <div class="space-y-1">
+                            <Label class="text-white/50 text-sm">Remark</Label>
+                            <p class="text-white/90">{{ selectedEvent?.remark || 'No remark' }}</p>
                         </div>
                     </div>
                 </div>
@@ -83,7 +99,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { Phone } from 'lucide-vue-next';
+import { Phone, Link } from 'lucide-vue-next';
 
 // Import required CSS
 import '@event-calendar/core/index.css';
@@ -122,12 +138,15 @@ async function fetchBookings() {
             backgroundColor: booking.status === 'confirmed' ? 'rgba(59, 130, 246, 0.8)' : 'rgba(251, 146, 60, 0.8)',
             extendedProps: {
                 status: booking.status,
-                phoneNumber: booking.users.phone_number
-            }
+                phoneNumber: booking.users.phone_number,
+                remark: booking?.remark,
+                receipt: `https://commerce.coinbase.com/pay/${booking?.cb_commerce_logs?.data?.id}/receipt`,
+            },
         }));
 
         // Store transformed events
         bookings.value = events; // Changed to store the transformed events
+        console.log('events', events);
         
         // Update calendar if it exists
         if (calendar) {
@@ -215,6 +234,7 @@ onMounted(async () => {
                     };
                     showDialog.value = true;
                 }
+
             }
         }
     });
