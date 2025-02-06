@@ -63,13 +63,42 @@
           </div>
         </div>
 
-        <div class="flex justify-center w-full">
-          <div class="inline-flex items-center gap-3 bg-stone-800/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
+        <div class="flex justify-center w-full gap-4">
+          <!-- Phone Card -->
+          <div class="flex items-center gap-3 bg-stone-800/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
             <span class="text-white/60 text-sm">Phone:</span>
             <a class="text-blue-400 hover:text-blue-300 transition-colors" 
                href="tel:+1(419)7806507">
               +1 (419) 780-6507
             </a>
+          </div>
+
+          <!-- User Info Card -->
+          <div class="flex items-center gap-4 bg-stone-800/80 backdrop-blur-sm rounded-lg px-4 py-2 border border-white/10">
+            <template v-if="variables.user_name">
+              <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2">
+                  <User class="w-3 h-3 text-white/50" />
+                  <span class="text-white/70 text-sm">{{ variables.user_name }}</span>
+                </div>
+                <div class="w-px h-4 bg-white/10"></div>
+                <div class="flex items-center gap-2">
+                  <Wallet class="w-3 h-3 text-white/50" />
+                  <span class="text-white/70 text-sm">{{ truncateAddress(variables.wallet_address) }}</span>
+                </div>
+                <div class="w-px h-4 bg-white/10"></div>
+                <div class="flex items-center gap-2">
+                  <CircleDollarSign class="w-3 h-3 text-white/50" />
+                  <span class="text-white/70 text-sm">{{ Math.round(variables.balance * 100000) / 100000 }} ETH</span>
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <div class="flex items-center gap-2">
+                <User class="w-3 h-3 text-white/50" />
+                <span class="text-white/50 text-sm">Not logged in</span>
+              </div>
+            </template>
           </div>
         </div>
 
@@ -113,22 +142,6 @@
         </button>
       </div>
 
-      <!-- Add new status bar -->
-      <div v-if="!isExpanded && variables.user_name" 
-           class="flex items-center gap-4 px-4 py-2 bg-white/5 backdrop-blur-sm rounded-lg border border-white/10 text-sm">
-        <div class="flex items-center gap-2">
-          <User class="w-3 h-3 text-white/50" />
-          <span class="text-white/70">{{ variables.user_name }}</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <Wallet class="w-3 h-3 text-white/50" />
-          <span class="text-white/70">{{ truncateAddress(variables.wallet_address) }}</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <CircleDollarSign class="w-3 h-3 text-white/50" />
-          <span class="text-white/70">{{ Math.round(variables.balance * 100000) / 100000 }} ETH</span>
-        </div>
-      </div>
     </div>
 
     <div :class="[

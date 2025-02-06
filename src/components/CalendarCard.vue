@@ -198,7 +198,7 @@ async function fetchBookings() {
         
         const events = data.map(booking => ({
             id: booking.id,
-            title: `Call with ${booking.users.name ? booking.users.name : 'User'}`,
+            title: `${booking.users.name ? booking.users.name : 'User'}`,
             start: `${booking.booking_date}T${booking.from_time}`,
             end: `${booking.booking_date}T${booking.to_time}`,
             backgroundColor: booking.status === 'confirmed' ? 'rgba(59, 130, 246, 0.8)' : booking.status === 'pending' ? 'rgba(251, 146, 60, 0.8)' : booking.status === 'cancelled' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(75, 85, 99, 0.8)',
@@ -269,7 +269,16 @@ onMounted(async () => {
     // First fetch the bookings and get transformed events
     const events = await fetchBookings();
 
-    // Initialize the calendar with the fetched events
+    // Filter events based on initial status filters before creating calendar
+    const enabledStatuses = statusFilters.value
+        .filter(status => status.enabled)
+        .map(status => status.value);
+    
+    const filteredEvents = events.filter(event => 
+        enabledStatuses.includes(event.extendedProps.status)
+    );
+
+    // Initialize the calendar with the filtered events
     calendar = new Calendar({
         target: document.getElementById('calendar'),
         props: {
@@ -282,7 +291,7 @@ onMounted(async () => {
                     center: 'title',
                     end: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
                 },
-                events: events,
+                events: filteredEvents, // Use filtered events instead of all events
                 nowIndicator: true,
                 editable: false,          // Prevents dragging/resizing
                 selectable: false,        // Disable date/time selection
