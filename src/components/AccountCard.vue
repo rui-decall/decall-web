@@ -162,11 +162,34 @@ import { useQRCode } from '@vueuse/integrations/useQRCode'
 import { useClipboard } from '@vueuse/core'
 
 const currentState = ref('phone')
-const phoneNumber = ref('')
+const phoneNumber = ref('60123')
 const name = ref('')
-const walletAddress = ref('0x1234567890abcdef1234567890abcdef12345678')
+const walletAddress = ref('')
 const balance = ref('0.0000')
+const supabaseWallet = ref(null)
+
 const { copy } = useClipboard()
+
+
+import { createClient } from '@supabase/supabase-js'
+import { http, createConfig, connect, getAccount, disconnect, reconnect, readContract, getBalance, sendTransaction, waitForTransactionReceipt } from '@wagmi/core'
+import { formatEther, parseEther } from 'viem'
+import { base } from '@wagmi/core/chains'
+const wagmiConfig = createConfig({
+  chains: [base],
+  transports: {
+    [base.id]: http(),
+  },
+})
+// Initialize Supabase client
+const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL
+const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables')
+}
+const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+
 
 // Generate QR code for wallet address
 const qrCode = useQRCode(walletAddress)
@@ -206,12 +229,19 @@ const handleRegister = async () => {
     
     try {
         isRegistering.value = true
-        await registerUser({
+        const succeed = await registerUser({
             phone: phoneNumber.value,
             name: name.value
         })
-        currentState.value = 'welcome'
-        transitionToAccount()
+
+        if (succeed) {
+            await checkUserExists(phoneNumber.value)
+            currentState.value = 'welcome'
+            transitionToAccount()
+        } else {
+            console.log('Error registering user:', succeed)
+        }
+
     } catch (error) {
         console.error('Error registering user:', error)
     } finally {
@@ -232,27 +262,82 @@ const handleSignOut = () => {
     // Add any other cleanup or API calls needed
 }
 
+const fetchWalletBalance = async (_walletAddress) => {
+    const balance = (await getBalance(wagmiConfig, {
+        address: _walletAddress,
+        chainId: base.id,
+        unit: "ether",
+    })).value;
+    console.log('base_balance', balance)
+    return balance;
+}
+
+
 // Simulate API calls
 const checkUserExists = async (phone) => {
     // Replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    return { exists: false }
+    // await new Promise(resolve => setTimeout(resolve, 1000))
+    // return { exists: false }
+
+    try {
+
+        const { data: walletData, error: walletError } = await supabase
+          .from('users')
+          .select('*')
+          .eq('phone_number', phone)
+          .single()
+    
+        supabaseWallet.value = walletData;
+        
+        if (walletError) throw walletError
+        
+        supabaseWallet.value.balance = formatEther(await fetchWalletBalance(supabaseWallet.value.wallet_address))
+        supabaseWallet.value.exists = true;
+        balance.value = supabaseWallet.value.balance
+        walletAddress.value = supabaseWallet.value.wallet_address
+        console.log('supabaseWallet', supabaseWallet.value)
+    
+        return supabaseWallet.value;
+    } catch (error) {
+        console.log('Error checking user:', error)
+        return { exists: false }
+    }
+
+
 }
 
 const registerUser = async (userData) => {
     // Replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    return true
+    // await new Promise(resolve => setTimeout(resolve, 1000))
+    // return true
+    try {
+
+        const response = await fetch(`https://decall-api.junyaoxiandingchan.workers.dev/phones/${userData.phone}/wallets`, {
+            method: 'POST',
+            body: JSON.stringify({
+                name: userData.name,
+            })
+        }).then(res => res.json())
+    
+        console.log('response', response)
+        return response;
+
+    } catch(error) {
+        console.log('Error registering user:', error)
+        return false;
+    }
 }
+
 
 // Simulate getting wallet balance
 const fetchBalance = async () => {
     // Replace with actual API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    balance.value = '1.2345'
+    // await new Promise(resolve => setTimeout(resolve, 1000))
+    // balance.value = '1.2345'
+    // balance.value = supabaseWallet.value.balance
 }
 
 onMounted(() => {
-    fetchBalance()
+    // fetchBalance()
 })
 </script> 
