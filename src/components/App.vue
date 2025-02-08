@@ -27,7 +27,7 @@
               </div>
               <div class="flex items-start gap-2">
                 <div class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5"></div>
-                <span>Send ETH to your wallet to fund it</span>
+                <span>Send a minimum of 0.001 ETH on Base to your wallet to fund it</span>
               </div>
               <div class="flex items-start gap-2">
                 <div class="w-1.5 h-1.5 rounded-full bg-blue-400 mt-1.5"></div>
