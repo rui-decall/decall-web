@@ -13,8 +13,20 @@ export const POST: APIRoute = async ({ request }) => {
     payload.metadata = metadata;
   }
 
+  let today_information = await fetch('https://time-api.junyaoxiandingchan.workers.dev/time/Asia-Singapore', {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  let today_information_data = await today_information.json();
+
   if (retell_llm_dynamic_variables) {
-    payload.retell_llm_dynamic_variables = retell_llm_dynamic_variables;
+    payload.retell_llm_dynamic_variables = {
+      ...retell_llm_dynamic_variables,
+      today_information: JSON.stringify(today_information_data),
+    };
   }
 
   try {
