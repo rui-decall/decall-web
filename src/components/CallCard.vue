@@ -12,7 +12,7 @@
                 <button 
                     class="relative group w-[220px] h-[220px] rounded-full flex flex-col justify-center items-center gap-4 transition-all duration-200"
                     :class="callState.isCalling ? 'bg-green-500/20 border-green-500/30' : 'bg-white/10 hover:bg-white/20 border-white/20'"
-                    :disabled="callState.isCalling || callDisabled"
+                    :disabled="callState.isCalling || !isLoggedIn"
                     @click="handleCall"
                 >
                     <div class="relative flex flex-col items-center gap-2">
@@ -234,6 +234,12 @@ const handleSave = () => {
 }
 
 const handleCall = async () => {
+        console.log(variables.value.balance)
+        if (Number(variables.value.balance) < 0.0011) {
+                alert('Make sure you have at least 0.0011 ETH')
+                return
+        }
+
     const webCallContainer = document.getElementById('hidden-webcall')
     if (webCallContainer) {
         const webCallButton = webCallContainer.querySelector('.webcall-button')
