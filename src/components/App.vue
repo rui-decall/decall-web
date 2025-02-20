@@ -104,7 +104,7 @@
 
       </div>
 
-      <div class="w-full" :class="[isExpanded ? 'flex justify-start items-center' : 'max-w-4xl grid grid-cols-3 gap-x-4']">
+      <div class="w-full" :class="[isExpanded ? 'flex justify-start items-center' : 'max-w-4xl grid grid-cols-3 gap-x-4 gap-y-4']">
         <button 
           v-for="tab in tabs" 
           :key="tab.key" 
