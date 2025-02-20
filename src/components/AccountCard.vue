@@ -14,22 +14,24 @@
                         initialCountry: 'us',
                         customContainer: 'w-full mt-2',
                     }" class="tel-input-custom" @changeNumber="phoneNumber = $event" @changeValidity="isValid = $event"
-                        @changeErrorCode="errorCode = $event" />
+                        @changeErrorCode="errorCode = $event" @keyup.enter="handlePhoneSubmit" />
 
                 </div>
             </div>
 
             <div class="px-6 pb-6 flex justify-end">
-                <Button class="bg-stone-900 border-white/20" @click="handlePhoneSubmit"
-                    :disabled="isLoading || !isValid">
-                    <span class="flex items-center">
-                        <span v-if="isLoading" class="mr-2 h-4 w-4 animate-spin">
-                            <Loader2 class="h-4 w-4" />
+                <form @submit.prevent="handlePhoneSubmit">
+                    <Button type="submit" class="bg-stone-900 border-white/20"
+                        :disabled="isLoading || !isValid">
+                        <span class="flex items-center">
+                            <span v-if="isLoading" class="mr-2 h-4 w-4 animate-spin">
+                                <Loader2 class="h-4 w-4" />
+                            </span>
+                            {{ isLoading ? 'Checking...' : 'Next' }}
+                            <ChevronRight v-if="!isLoading" class="ml-2 h-4 w-4" />
                         </span>
-                        {{ isLoading ? 'Checking...' : 'Next' }}
-                        <ChevronRight v-if="!isLoading" class="ml-2 h-4 w-4" />
-                    </span>
-                </Button>
+                    </Button>
+                </form>
             </div>
         </div>
 
@@ -48,7 +50,7 @@
                             v-model="otpDigits[index]" type="text" maxlength="1"
                             class="w-12 h-12 text-center bg-stone-800 border border-white/20 rounded-md text-white text-xl focus:border-blue-500/50 focus:outline-none"
                             @input="handleOtpInput(index)" @keydown="handleOtpKeydown($event, index)"
-                            @paste="handleOtpPaste" />
+                            @keyup.enter="isOtpComplete && verifyOtp()" @paste="handleOtpPaste" />
                     </div>
                 </div>
 
@@ -86,11 +88,13 @@
             </div>
 
             <div class="p-6 space-y-4 flex-1">
-                <div>
-                    <Label for="name">Name</Label>
-                    <Input class="mt-2 bg-stone-800 border-white/20" id="name" v-model="name"
-                        placeholder="Enter name" />
-                </div>
+                <form @submit.prevent="handleRegister">
+                    <div>
+                        <Label for="name">Name</Label>
+                        <Input class="mt-2 bg-stone-800 border-white/20" id="name" v-model="name"
+                            placeholder="Enter name" @keyup.enter="handleRegister" />
+                    </div>
+                </form>
             </div>
 
             <div class="px-6 pb-6 flex justify-end">
