@@ -23,6 +23,13 @@
             </div>
             <div 
                 :key="3" 
+                class="panel h-full w-full max-w-xl flex justify-center items-center transition-opacity duration-300"
+                :class="[activeTab === 'wallet' ? 'opacity-100' : 'opacity-20 pointer-events-none']"
+            >
+                <WalletAgent />
+            </div>
+            <div 
+                :key="4" 
                 class="panel h-full w-[calc(100dvw-100px)] px-12 flex justify-center items-center transition-opacity duration-300"
                 :class="[activeTab === 'calendar' ? 'opacity-100' : 'opacity-20 pointer-events-none']"
             >
@@ -33,29 +40,33 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useStore } from '@nanostores/vue'
 import Flicking from "@egjs/vue3-flicking"
 import "@egjs/vue3-flicking/dist/flicking.css"
 import AccountCard from './AccountCard.vue'
 import CallCard from './CallCard.vue'
 import CalendarCard from './CalendarCard.vue'
+import WalletAgent from './WalletAgent.vue'
 import { $activeTab, setActiveTab } from '../stores/ui'
 
 const flickingRef = ref(null)
 const activeTab = useStore($activeTab)
 
+
 const tabToIndex = {
     'register': 0,
     'call': 1,
-    'calendar': 2
+    'wallet': 2,
+    'calendar': 3
 }
 
 // Reverse mapping for index to tab
 const indexToTab = {
     0: 'register',
     1: 'call',
-    2: 'calendar'
+    2: 'wallet',
+    3: 'calendar'
 }
 
 const onFlickingReady = () => {

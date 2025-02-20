@@ -190,6 +190,12 @@ const tabs = [
     tag: 'Customer'
   },
   {
+    key: 'wallet',
+    label: 'Wallet Agent',
+    description: 'Chat with wallet agent to manage your funds',
+    tag: 'Customer'
+  },
+  {
     key: 'calendar',
     label: 'Calendar',
     description: 'View the Appointments in the Calendar',

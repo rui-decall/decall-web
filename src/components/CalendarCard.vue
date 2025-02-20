@@ -53,13 +53,13 @@
                     </div>
 
                     <!-- Phone Number -->
-                    <div class="space-y-1">
+                    <!-- <div class="space-y-1">
                         <Label class="text-white/50 text-sm">Phone Number</Label>
                         <div class="flex items-center gap-2 text-white/90">
                             <Phone class="w-4 h-4 text-white/50" />
                             {{ selectedEvent?.phoneNumber }}
                         </div>
-                    </div>
+                    </div> -->
 
                     <!-- Receipt -->
                     <div class="space-y-1">
@@ -191,20 +191,20 @@ function updateCalendarEvents() {
 async function fetchBookings() {
     try {
         const { data, error } = await supabase
-            .from('bookings')
-            .select('*, users(*)');
+            .from('booking_view')
+            .select('*');
 
         if (error) throw error;
         
         const events = data.map(booking => ({
             id: booking.id,
-            title: `${booking.users.name ? booking.users.name : 'User'}`,
+            title: `${booking.customer_name ? booking.customer_name : 'User'}`,
             start: `${booking.booking_date}T${booking.from_time}`,
             end: `${booking.booking_date}T${booking.to_time}`,
             backgroundColor: booking.status === 'confirmed' ? 'rgba(59, 130, 246, 0.8)' : booking.status === 'pending' ? 'rgba(251, 146, 60, 0.8)' : booking.status === 'cancelled' ? 'rgba(239, 68, 68, 0.8)' : 'rgba(75, 85, 99, 0.8)',
             extendedProps: {
                 status: booking.status,
-                phoneNumber: booking.users.phone_number,
+                // phoneNumber: booking.users.phone_number,
                 remark: booking?.remark,
                 receipt: booking?.cb_commerce_logs?.data?.id ? `https://commerce.coinbase.com/pay/${booking?.cb_commerce_logs?.data?.id}/receipt` : null,
                 cancelReceipt: booking?.cancelled_tx ? `https://basescan.org/tx/${booking?.cancelled_tx}` : null,

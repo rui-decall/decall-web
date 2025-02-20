@@ -26,7 +26,7 @@
         >
           <template v-if="getBooking(date, time)">
             <div class="booking-info">
-              <strong>{{ getBooking(date, time).users.phone_number }}</strong>
+              <!-- <strong>{{ getBooking(date, time).users.phone_number }}</strong> -->
               <div class="booking-status" :class="getBooking(date, time).status">
                 {{ getBooking(date, time).status }}
               </div>
@@ -161,8 +161,8 @@ function getSlotClass(date: Date, time: string) {
 async function fetchBookings() {
   try {
     const { data, error } = await supabase
-      .from('bookings')
-      .select('*, users(*)')
+      .from('booking_view')
+      .select('*')
       .not('status', 'eq', 'cancelled')
       // .gte('date', weekStart.value.toISOString().split('T')[0])
       // .lte('date', weekEnd.value.toISOString().split('T')[0])
