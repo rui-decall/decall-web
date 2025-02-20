@@ -14,7 +14,7 @@
                         initialCountry: 'us',
                         customContainer: 'w-full mt-2',
                     }" class="tel-input-custom" @changeNumber="phoneNumber = $event" @changeValidity="isValid = $event"
-                        @changeErrorCode="errorCode = $event" @keyup.enter="handlePhoneSubmit" />
+                        @changeErrorCode="errorCode = $event" />
 
                 </div>
             </div>

@@ -120,6 +120,9 @@ const sendMessage = async () => {
 }
 
 onMounted(() => {
-    scrollToBottom()
+  if (localStorage.getItem(AUTH_KEY)) {
+    accessToken.value = localStorage.getItem(AUTH_KEY)
+  }
+  scrollToBottom()
 })
 </script> 
