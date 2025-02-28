@@ -235,8 +235,8 @@ const handleSave = () => {
 
 const handleCall = async () => {
         console.log(variables.value.balance)
-        if (Number(variables.value.balance) < 0.0011) {
-                alert('Make sure you have at least 0.0011 ETH')
+        if (Number(variables.value.balance) < 0.0015) {
+                alert('Make sure you have at least 0.0015 ETH')
                 return
         }
 

@@ -1,196 +1,197 @@
 <template>
-    <div class="w-full max-w-sm bg-white/10 rounded-xl border border-white/20 aspect-[3/4] flex flex-col">
-        <!-- Phone Number Entry State -->
-        <div v-if="currentState === 'phone'" class="flex flex-col h-full">
-            <div class="px-6 pt-6 pb-4 border-b border-white/20">
+    <div class="account-card-container" :class="$attrs.class">
+        <div class="w-full bg-stone-800 rounded-xl border border-white/20 relative">
+            <!-- Add close button at the top level of the component -->
+            <button 
+                v-if="showCloseButton"
+                @click="$emit('close')" 
+                class="absolute top-4 right-4 text-white/70 hover:text-white focus:outline-none z-10"
+                aria-label="Close modal"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            
+            <!-- Phone Number Entry State -->
+            <div v-if="currentState === 'phone'" class="p-6">
                 <h3 class="text-white text-2xl font-bold mb-2">Welcome</h3>
-                <p class="text-white/50 text-sm">Enter your phone number to continue</p>
-            </div>
+                <p class="text-white/50 text-sm mb-4">Enter your phone number to continue</p>
 
-            <div class="p-6 space-y-4 flex-1">
-                <div>
-                    <Label for="phone">Phone Number</Label>
-                    <IntlTelInput :options="{
-                        initialCountry: 'us',
-                        customContainer: 'w-full mt-2',
-                    }" class="tel-input-custom" @changeNumber="phoneNumber = $event" @changeValidity="isValid = $event"
-                        @changeErrorCode="errorCode = $event" />
-
-                </div>
-            </div>
-
-            <div class="px-6 pb-6 flex justify-end">
-                <form @submit.prevent="handlePhoneSubmit">
-                    <Button type="submit" class="bg-stone-900 border-white/20"
-                        :disabled="isLoading || !isValid">
-                        <span class="flex items-center">
-                            <span v-if="isLoading" class="mr-2 h-4 w-4 animate-spin">
-                                <Loader2 class="h-4 w-4" />
+                <div class="space-y-4">
+                    <div class="w-full">
+                        <Label class="pr-2" for="phone">Phone Number</Label>
+                        <IntlTelInput :options="{
+                            initialCountry: 'us',
+                            customContainer: 'w-full mt-2',
+                        }" class="tel-input-custom border w-full" @changeNumber="phoneNumber = $event" @changeValidity="isValid = $event"
+                            @changeErrorCode="errorCode = $event" />
+                    </div>
+                    
+                    <form @submit.prevent="handlePhoneSubmit" class="flex justify-end">
+                        <Button type="submit" class="bg-stone-900 border-white/20"
+                            :disabled="isLoading || !isValid">
+                            <span class="flex items-center">
+                                <span v-if="isLoading" class="mr-2 h-4 w-4 animate-spin">
+                                    <Loader2 class="h-4 w-4" />
+                                </span>
+                                {{ isLoading ? 'Checking...' : 'Next' }}
+                                <ChevronRight v-if="!isLoading" class="ml-2 h-4 w-4" />
                             </span>
-                            {{ isLoading ? 'Checking...' : 'Next' }}
-                            <ChevronRight v-if="!isLoading" class="ml-2 h-4 w-4" />
-                        </span>
-                    </Button>
-                </form>
+                        </Button>
+                    </form>
+                </div>
             </div>
-        </div>
 
-        <!-- Add this new OTP state after the phone state and before register state -->
-        <div v-if="currentState === 'otp'" class="flex flex-col h-full">
-            <div class="px-6 pt-6 pb-4 border-b border-white/20">
+            <!-- OTP state -->
+            <div v-if="currentState === 'otp'" class="p-6">
                 <h3 class="text-white text-2xl font-bold mb-2">Verify Phone</h3>
-                <p class="text-white/50 text-sm">Enter the verification code sent to your phone</p>
-            </div>
+                <p class="text-white/50 text-sm mb-4">Enter the verification code sent to your phone</p>
 
-            <div class="p-6 space-y-4 flex-1">
-                <div>
-                    <Label for="otp">Verification Code</Label>
-                    <div class="mt-2 flex gap-2 justify-center">
-                        <input v-for="(digit, index) in 6" :key="index" :ref="el => otpInputs[index] = el"
-                            v-model="otpDigits[index]" type="text" maxlength="1"
-                            class="w-12 h-12 text-center bg-stone-800 border border-white/20 rounded-md text-white text-xl focus:border-blue-500/50 focus:outline-none"
-                            @input="handleOtpInput(index)" @keydown="handleOtpKeydown($event, index)"
-                            @keyup.enter="isOtpComplete && verifyOtp()" @paste="handleOtpPaste" />
-                    </div>
-                </div>
-
-                <div class="text-center">
-                    <button @click="resendOtp" :disabled="resendTimer > 0"
-                        class="text-sm text-blue-400 hover:text-blue-300 disabled:text-white/30">
-                        {{ resendTimer > 0 ? `Resend code in ${resendTimer}s` : 'Resend code' }}
-                    </button>
-                </div>
-            </div>
-
-            <div class="px-6 pb-6 flex justify-between">
-                <Button variant="ghost" class="border-white/20" @click="currentState = 'phone'">
-                    <ChevronLeft class="w-4 h-4 mr-2" />
-                    Back
-                </Button>
-                <Button class="bg-stone-900 border-white/20" @click="verifyOtp"
-                    :disabled="isVerifying || !isOtpComplete">
-                    <span class="flex items-center">
-                        <span v-if="isVerifying" class="mr-2 h-4 w-4 animate-spin">
-                            <Loader2 class="h-4 w-4" />
-                        </span>
-                        {{ isVerifying ? 'Verifying...' : 'Verify' }}
-                        <ChevronRight v-if="!isVerifying" class="ml-2 h-4 w-4" />
-                    </span>
-                </Button>
-            </div>
-        </div>
-
-        <!-- Register State -->
-        <div v-if="currentState === 'register'" class="flex flex-col h-full">
-            <div class="px-6 pt-6 pb-4 border-b border-white/20">
-                <h3 class="text-white text-2xl font-bold mb-2">Register</h3>
-                <p class="text-white/50 text-sm">Create a new account using your phone number</p>
-            </div>
-
-            <div class="p-6 space-y-4 flex-1">
-                <form @submit.prevent="handleRegister">
+                <div class="space-y-4">
                     <div>
-                        <Label for="name">Name</Label>
-                        <Input class="mt-2 bg-stone-800 border-white/20" id="name" v-model="name"
-                            placeholder="Enter name" @keyup.enter="handleRegister" />
+                        <Label for="otp">Verification Code</Label>
+                        <div class="mt-2 flex gap-2 justify-center">
+                            <input v-for="(digit, index) in 6" :key="index" :ref="el => otpInputs[index] = el"
+                                v-model="otpDigits[index]" type="text" maxlength="1"
+                                class="w-12 h-12 text-center bg-stone-800 border border-white/20 rounded-md text-white text-xl focus:border-blue-500/50 focus:outline-none"
+                                @input="handleOtpInput(index)" @keydown="handleOtpKeydown($event, index)"
+                                @keyup.enter="isOtpComplete && verifyOtp()" @paste="handleOtpPaste" />
+                        </div>
                     </div>
-                </form>
+
+                    <div class="text-center">
+                        <button @click="resendOtp" :disabled="resendTimer > 0"
+                            class="text-sm text-blue-400 hover:text-blue-300 disabled:text-white/30">
+                            {{ resendTimer > 0 ? `Resend code in ${resendTimer}s` : 'Resend code' }}
+                        </button>
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <Button variant="ghost" class="border-white/20" @click="currentState = 'phone'">
+                            <ChevronLeft class="w-4 h-4 mr-2" />
+                            Back
+                        </Button>
+                        <Button class="bg-stone-900 border-white/20" @click="verifyOtp"
+                            :disabled="isVerifying || !isOtpComplete">
+                            <span class="flex items-center">
+                                <span v-if="isVerifying" class="mr-2 h-4 w-4 animate-spin">
+                                    <Loader2 class="h-4 w-4" />
+                                </span>
+                                {{ isVerifying ? 'Verifying...' : 'Verify' }}
+                                <ChevronRight v-if="!isVerifying" class="ml-2 h-4 w-4" />
+                            </span>
+                        </Button>
+                    </div>
+                </div>
             </div>
 
-            <div class="px-6 pb-6 flex justify-end">
-                <Button class="bg-stone-900 border-white/20" @click="handleRegister" :disabled="isRegistering">
-                    <span class="flex items-center">
-                        <span v-if="isRegistering" class="mr-2 h-4 w-4 animate-spin">
-                            <Loader2 class="h-4 w-4" />
-                        </span>
-                        {{ isRegistering ? 'Creating Account...' : 'Register' }}
-                        <ChevronRight v-if="!isRegistering" class="ml-2 h-4 w-4" />
-                    </span>
-                </Button>
-            </div>
-        </div>
+            <!-- Register State -->
+            <div v-if="currentState === 'register'" class="p-6">
+                <h3 class="text-white text-2xl font-bold mb-2">Register</h3>
+                <p class="text-white/50 text-sm mb-4">Create a new account using your phone number</p>
 
-        <!-- Welcome Back State - Now with auto-transition -->
-        <div v-if="currentState === 'welcome'" class="flex flex-col h-full">
-            <div class="px-6 pt-6 pb-4 border-b border-white/20">
+                <div class="space-y-4">
+                    <form @submit.prevent="handleRegister">
+                        <div>
+                            <Label for="name">Name</Label>
+                            <Input class="mt-2 bg-stone-800 border-white/20" id="name" v-model="name"
+                                placeholder="Enter name" @keyup.enter="handleRegister" />
+                        </div>
+                    </form>
+                    
+                    <div class="flex justify-end">
+                        <Button class="bg-stone-900 border-white/20" @click="handleRegister" :disabled="isRegistering">
+                            <span class="flex items-center">
+                                <span v-if="isRegistering" class="mr-2 h-4 w-4 animate-spin">
+                                    <Loader2 class="h-4 w-4" />
+                                </span>
+                                {{ isRegistering ? 'Creating Account...' : 'Register' }}
+                                <ChevronRight v-if="!isRegistering" class="ml-2 h-4 w-4" />
+                            </span>
+                        </Button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Back State -->
+            <div v-if="currentState === 'welcome'" class="p-6 flex flex-col items-center justify-center">
                 <h3 class="text-white text-2xl font-bold mb-2">Welcome Back!</h3>
-                <p class="text-white/50 text-sm">{{ name }}</p>
-            </div>
-
-            <div class="p-6 flex-1 flex items-center justify-center">
+                <p class="text-white/50 text-sm mb-4">{{ name }}</p>
+                
                 <div class="flex flex-col items-center gap-2">
                     <span class="loading loading-spinner loading-md"></span>
                     <p class="text-white/70">Logging you in...</p>
                 </div>
             </div>
-        </div>
 
-        <!-- Account State -->
-        <div v-if="currentState === 'account'" class="flex flex-col h-full">
-            <div class="px-6 pt-6 pb-4 border-b border-white/20 flex justify-between items-center">
-                <div>
-                    <h3 class="text-white text-2xl font-bold mb-1">{{ name }}</h3>
-                    <div class="flex items-center gap-2 text-white/50">
-                        <Phone class="w-3 h-3" />
-                        <p class="text-sm">{{ phoneNumber }}</p>
+            <!-- Account State - Horizontal Layout -->
+            <div v-if="currentState === 'account'" class="flex flex-col md:flex-row">
+                <!-- User Info Section -->
+                <div class="p-6 border-b md:border-b-0 md:border-r border-white/20 md:w-1/3">
+                    <div class="flex flex-col">
+                        <h3 class="text-white text-2xl font-bold mb-1">{{ name }}</h3>
+                        <div class="flex items-center gap-2 text-white/50 mb-4">
+                            <Phone class="w-3 h-3" />
+                            <p class="text-sm">{{ phoneNumber }}</p>
+                        </div>
+                        <Button variant="outline" size="sm"
+                            class="text-red-400 hover:text-red-300 border-red-500/50 hover:border-red-500 hover:bg-red-500/10 w-full"
+                            @click="handleSignOut">
+                            <LogOut class="w-4 h-4 mr-2" />
+                            Sign Out
+                        </Button>
                     </div>
                 </div>
-                <Button variant="outline" size="sm"
-                    class="text-red-400 hover:text-red-300 border-red-500/50 hover:border-red-500 hover:bg-red-500/10"
-                    @click="handleSignOut">
-                    <LogOut class="w-4 h-4 mr-2" />
-                    Sign Out
-                </Button>
-            </div>
-
-            <div class="p-6 flex-1 scroll-auto">
-                <div v-if="accountView === 'wallet'" class="space-y-4">
-                    <!-- Wallet Balance -->
-                    <div class="text-center">
-                        <p class="text-white/50 text-sm">Wallet Balance</p>
-                        <p class="text-white text-xl font-bold">{{ Math.round(balance * 100000) / 100000 }} ETH</p>
-                    </div>
-
-                    <!-- QR Code Section -->
-                    <div class="flex flex-col items-center space-y-4">
-                        <img :src="qrCode" alt="Wallet QR Code" class="w-32 h-32 bg-white rounded-xl" />
-
-                        <div class="w-full py-2 px-4 bg-stone-800/50 rounded-lg border border-white/10">
-                            <div class="flex items-center justify-between mb-2">
-                                <p class="text-white/50 text-sm">Wallet Address</p>
-                                <Button variant="ghost" size="icon" class="text-white/70 hover:text-white"
-                                    @click="copyAddress">
-                                    <Copy class="w-4 h-4" />
-                                </Button>
+                
+                <!-- Wallet Section -->
+                <div class="p-6 flex-1">
+                    <div class="space-y-6">
+                        <!-- Wallet Balance -->
+                        <div class="text-center relative">
+                            <p class="text-white/50 text-sm">Wallet Balance</p>
+                            <div class="flex items-center justify-center gap-2">
+                                <p class="text-white text-xl font-bold">{{ Math.round(balance * 100000) / 100000 }} ETH</p>
+                                <button 
+                                    @click="refreshBalance" 
+                                    class="text-white/50 hover:text-white/80 transition-colors p-1 rounded-full hover:bg-white/10"
+                                    :class="{'animate-spin': isRefreshing}"
+                                    :disabled="isRefreshing"
+                                >
+                                    <RefreshCw class="w-4 h-4" />
+                                </button>
                             </div>
-                            <p class="text-white/90 text-sm font-mono break-all">
-                                {{ walletAddress }}
-                            </p>
                         </div>
 
-                        <!-- <Button @click="accountView = 'call'" :disabled="callDisabled" class="w-full p-4 bg-stone-800/50 rounded-lg border border-white/10">
-                            <Phone class="w-4 h-4 mr-2" />
-                            Call Now
-                        </Button> -->
+                        <!-- QR Code and Address -->
+                        <div class="flex flex-col items-center space-y-4">
+                            <img :src="qrCode" alt="Wallet QR Code" class="w-32 h-32 bg-white rounded-xl" />
 
+                            <div class="w-full py-2 px-4 bg-stone-800/50 rounded-lg border border-white/10">
+                                <div class="flex items-center justify-between mb-2">
+                                    <p class="text-white/50 text-sm">Wallet Address</p>
+                                    <Button variant="ghost" size="icon" class="text-white/70 hover:text-white"
+                                        @click="copyAddress">
+                                        <Copy class="w-4 h-4" />
+                                    </Button>
+                                </div>
+                                <p class="text-white/90 text-sm font-mono break-all">
+                                    {{ walletAddress }}
+                                </p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-
-                <div v-if="accountView === 'call'" class="space-y-8">
-                    <CallCard />
                 </div>
             </div>
         </div>
-
+        <div class="relative z-[999]">
+            <Toaster richColors closeButton />
+        </div>
     </div>
-    <div class="relative z-[999]">
-        <Toaster richColors closeButton />
-    </div>
-
 </template>
 
 <script setup>
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, useAttrs } from 'vue'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -201,7 +202,8 @@ import {
     Phone,
     Loader2,
     SaveAll,
-    ChevronLeft
+    ChevronLeft,
+    RefreshCw
 } from 'lucide-vue-next'
 import { useQRCode } from '@vueuse/integrations/useQRCode'
 import { useClipboard } from '@vueuse/core'
@@ -209,13 +211,27 @@ import CallCard from './CallCard.vue'
 import IntlTelInput from "intl-tel-input/vueWithUtils";
 import "intl-tel-input/styles";
 import { toast, Toaster } from 'vue-sonner'
+import posthog from 'posthog-js'
 
+// Add prop for showCloseButton
+const props = defineProps({
+    showCloseButton: {
+        type: Boolean,
+        default: true
+    }
+})
+
+// Explicitly handle attributes
+defineOptions({
+    inheritAttrs: false
+})
 
 const currentState = ref('phone')
 const phoneNumber = ref('')
 const name = ref('')
 const walletAddress = ref('')
-const balance = ref('0.0000')
+const balance = ref(0)
+const isRefreshing = ref(false)
 
 // const supabaseWallet = ref(null)
 const accountView = ref('wallet')
@@ -294,6 +310,7 @@ const transitionToAccount = () => {
 }
 
 async function requestOtp() {
+    
     return fetch(`${import.meta.env.PUBLIC_API_URL}/otp/generate`, {
         method: 'POST',
         body: JSON.stringify({
@@ -308,10 +325,21 @@ const handlePhoneSubmit = async () => {
     try {
         isLoading.value = true
         await requestOtp()
+        
+        // Track OTP requested event
+        posthog.capture('otp_requested', {
+            phone_number_provided: true
+        })
+        
         currentState.value = 'otp'
         startResendTimer()
     } catch (error) {
         console.error('Error sending OTP:', error)
+        
+        // Track OTP request failure
+        posthog.capture('otp_request_failed', {
+            error: error.message
+        })
     } finally {
         isLoading.value = false
     }
@@ -326,12 +354,28 @@ const handleRegister = async () => {
             name: name.value
         })
 
+        // Track successful registration
+        posthog.capture('user_registered', {
+            name_provided: !!name.value
+        })
+        
+        // Identify the user in PostHog
+        posthog.identify(phoneNumber.value, {
+            name: name.value,
+            phone: phoneNumber.value
+        })
+
         name.value = user.name
         currentState.value = 'welcome'
         transitionToAccount()
 
     } catch (error) {
         console.error('Error registering user:', error)
+        
+        // Track registration failure
+        posthog.capture('registration_failed', {
+            error: error.message
+        })
     } finally {
         isRegistering.value = false
     }
@@ -343,15 +387,19 @@ const copyAddress = async () => {
 }
 
 const handleSignOut = () => {
+    // Track sign out event
+    posthog.capture('user_signed_out')
+    
+    // Reset PostHog user
+    posthog.reset()
+    
     currentState.value = 'phone'
     name.value = ''
     phoneNumber.value = ''
     walletAddress.value = ''
-    balance.value = '0.0000'
-    // supabaseWallet.value = null
+    balance.value = 0
 
     // Clear local storage
-    // localStorage.removeItem(STORAGE_KEY)
     localStorage.removeItem(AUTH_KEY)
 
     // Reset Retell variables
@@ -368,7 +416,7 @@ const fetchWalletBalance = async (_walletAddress) => {
         unit: "ether",
     })).value;
     console.log('base_balance', balance)
-    return balance;
+    return Number(balance);
 }
 // Modify getUser to save data
 const getUser = async () => {
@@ -391,7 +439,7 @@ const getUser = async () => {
         // supabaseWallet.value = response.user
         // supabaseWallet.value.balance = formatEther(await fetchWalletBalance(supabaseWallet.value.wallet_address))
         // supabaseWallet.value.exists = true
-        const _balance = formatEther(await fetchWalletBalance(response.user.wallet_address))
+        const _balance = Number(formatEther(await fetchWalletBalance(response.user.wallet_address)))
         // supabaseWallet.value.exists = true
         console.log('user', response.user)
         name.value = response.user.name
@@ -485,38 +533,95 @@ const resendOtp = async () => {
 const verifyOtp = async () => {
     if (isVerifying.value || !isOtpComplete.value) return
 
-
     isVerifying.value = true
 
     const otp = otpDigits.value.join('')
-    const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/otp/verify`, {
-        method: 'POST',
-        body: JSON.stringify({
-            phone_number: phoneNumber.value,
-            otp: otp
+    try {
+        const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/otp/verify`, {
+            method: 'POST',
+            body: JSON.stringify({
+                phone_number: phoneNumber.value,
+                otp: otp
+            })
         })
-    })
         .then(res => res.json())
 
-    if (response.access_token) {
-        localStorage.setItem(AUTH_KEY, response.access_token)
-        toast.success("Phone number verified successfully", {
-            description: "Welcome back",
-            duration: 5000,
-        })
-        currentState.value = 'welcome'
-        await getUser()
-        if (name.value) {
-            transitionToAccount()
+        if (response.access_token) {
+            localStorage.setItem(AUTH_KEY, response.access_token)
+            
+            // Track successful verification
+            posthog.capture('otp_verified_success')
+            
+            toast.success("Phone number verified successfully", {
+                description: "Welcome back",
+                duration: 5000,
+            })
+            currentState.value = 'welcome'
+            await getUser()
+            
+            // Identify user in PostHog after successful login
+            if (name.value) {
+                posthog.identify(phoneNumber.value, {
+                    name: name.value,
+                    phone: phoneNumber.value,
+                    wallet_address: walletAddress.value
+                })
+                
+                transitionToAccount()
+            } else {
+                currentState.value = 'register'
+            }
         } else {
-            currentState.value = 'register'
+            // Track failed verification
+            posthog.capture('otp_verified_failed')
+            
+            toast.error("Failed to verify code. Please try again.")
         }
-    } else {
-        toast.error("Failed to verify code. Please try again.")
+    } catch (error) {
+        console.error('Error verifying OTP:', error)
+        
+        // Track verification error
+        posthog.capture('otp_verification_error', {
+            error: error.message
+        })
+        
+        toast.error("An error occurred. Please try again.")
+    } finally {
+        isVerifying.value = false
     }
+}
 
-    isVerifying.value = false
-
+// Add refresh balance function
+const refreshBalance = async () => {
+    if (!walletAddress.value || isRefreshing.value) return;
+    
+    isRefreshing.value = true;
+    try {
+        const newBalance = Number(formatEther(await fetchWalletBalance(walletAddress.value)));
+        balance.value = newBalance;
+        
+        // Update Retell variable
+        setVariable('balance', newBalance);
+        
+        // Track balance refresh
+        posthog.capture('wallet_balance_refreshed', {
+            wallet_address: walletAddress.value,
+            balance: newBalance
+        })
+        
+        toast.success("Balance updated successfully");
+    } catch (error) {
+        console.error("Error refreshing balance:", error);
+        
+        // Track balance refresh failure
+        posthog.capture('wallet_balance_refresh_failed', {
+            error: error.message
+        })
+        
+        toast.error("Failed to refresh balance");
+    } finally {
+        isRefreshing.value = false;
+    }
 }
 </script>
 

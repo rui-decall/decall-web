@@ -16,7 +16,7 @@
         </div>
 
         <!-- Calendar card -->
-        <div class="w-full h-[calc(100dvh-13rem)] max-h-[calc(100dvh-13rem)] bg-zinc-900/50 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-sm">
+        <div class="w-full h-[calc(100dvh-10rem)] bg-zinc-900/50 rounded-2xl border border-white/10 overflow-hidden backdrop-blur-sm">
             <div id="calendar" class="ec-dark h-full"></div>
         </div>
 
