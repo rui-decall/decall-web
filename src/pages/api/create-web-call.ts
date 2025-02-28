@@ -22,11 +22,20 @@ export const POST: APIRoute = async ({ request }) => {
 
   let today_information_data = await today_information.json();
 
+  // Ensure all dynamic variables are strings
   if (retell_llm_dynamic_variables) {
-    payload.retell_llm_dynamic_variables = {
-      ...retell_llm_dynamic_variables,
-      today_information: JSON.stringify(today_information_data),
-    };
+    // Create a new object with stringified values
+    const stringifiedVariables: Record<string, string> = {};
+    
+    // Process existing variables from the request
+    for (const [key, value] of Object.entries(retell_llm_dynamic_variables)) {
+      stringifiedVariables[key] = typeof value === 'string' ? value : JSON.stringify(value);
+    }
+    
+    // Add today_information as a stringified value
+    stringifiedVariables.today_information = JSON.stringify(today_information_data);
+    
+    payload.retell_llm_dynamic_variables = stringifiedVariables;
   }
 
   try {

@@ -104,11 +104,12 @@ defineProps({
   isLoggedIn: Boolean
 });
 
-defineEmits(['selectTab']);
-
 const showWebCallModal = ref(false);
 const callCardRef = ref(null);
 const callInitiated = ref(false);
+
+// Fix: Capture the emit function from defineEmits
+const emit = defineEmits(['selectTab']);
 
 // Function to start web call with tracking
 const startWebCall = () => {
@@ -171,7 +172,7 @@ const trackPhoneCall = () => {
 // Track WhatsApp click
 const openWhatsApp = () => {
   posthog.capture('whatsapp_initiated');
-  // Emit the event to parent component
+  // Now emit will be properly defined
   emit('selectTab', 'whatsapp');
 };
 </script> 
