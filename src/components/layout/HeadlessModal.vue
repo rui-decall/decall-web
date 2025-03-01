@@ -2,11 +2,11 @@
   <Teleport to="body">
     <Transition
       enter-active-class="transition duration-200 ease-out"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
+      enter-from-class="opacity-0 scale-95"
+      enter-to-class="opacity-100 scale-100"
       leave-active-class="transition duration-150 ease-in"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
+      leave-from-class="opacity-100 scale-100"
+      leave-to-class="opacity-0 scale-95"
     >
       <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-0">
         <!-- Backdrop -->
@@ -17,7 +17,7 @@
         
         <!-- Modal Content -->
         <div 
-          class="relative z-10 w-full max-w-lg transform transition-all text-white flex flex-col max-h-[90vh]"
+          class="relative z-10 w-full max-w-md transform transition-all text-white flex flex-col max-h-[90vh] rounded-2xl overflow-hidden"
           :class="contentClass"
         >
           <slot></slot>
@@ -49,7 +49,7 @@ const props = defineProps({
   }
 });
 
-defineEmits(['close']);
+const emit = defineEmits(['close']);
 
 // Handle escape key to close modal
 const handleEscKey = (e) => {

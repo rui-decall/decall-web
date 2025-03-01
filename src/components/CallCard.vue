@@ -1,7 +1,21 @@
 <template>
-    <div class="w-full max-w-lg flex flex-col items-center gap-8">
-        <!-- Compact Call State -->
-        <div v-if="!isEditing" class="flex flex-col items-center gap-12">
+    <div class="w-full flex flex-col items-center gap-6 bg-stone-900 rounded-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="w-full bg-stone-800/50 px-6 py-4 flex justify-between items-center">
+            <h2 class="text-xl font-semibold">Web Call</h2>
+            <button 
+                @click="$emit('close')" 
+                class="text-white/70 hover:text-white focus:outline-none"
+                aria-label="Close modal"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Call Content -->
+        <div class="w-full flex flex-col items-center gap-6 px-6 pb-8">
             <!-- Main Call Button -->
             <div class="relative">
                 <!-- Active Call Glow Effect -->
@@ -11,7 +25,7 @@
                 
                 <button 
                     class="relative group w-[220px] h-[220px] rounded-full flex flex-col justify-center items-center gap-4 transition-all duration-200"
-                    :class="callState.isCalling ? 'bg-green-500/20 border-green-500/30' : 'bg-white/10 hover:bg-white/20 border-white/20'"
+                    :class="callState.isCalling ? 'bg-green-500/20 border border-green-500/30' : 'bg-white/10 hover:bg-white/20 border border-white/20'"
                     :disabled="callState.isCalling || !isLoggedIn"
                     @click="handleCall"
                 >
@@ -20,6 +34,22 @@
                               :class="callState.isCalling ? 'text-green-400' : 'text-white/70 group-hover:text-white/90'" />
                     </div>
                 </button>
+
+                <!-- Mic Activity Indicator -->
+                <div v-if="callState.isCalling" 
+                     class="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-2 text-blue-400">
+                    <div class="flex items-center gap-1">
+                        <div 
+                            v-for="i in 3" 
+                            :key="i" 
+                            class="h-1.5 w-1.5 rounded-full"
+                            :class="[
+                                micActivity > (i-1) * 0.33 ? 'opacity-100' : 'opacity-30',
+                                {'animate-pulse': micActivity > (i-1) * 0.33}
+                            ]"
+                        ></div>
+                    </div>
+                </div>
 
                 <!-- Hang Up Button -->
                 <button v-if="callState.isCalling"
@@ -31,12 +61,15 @@
             </div>
 
             <!-- Call Status -->
-            <div v-if="callState.callStatus !== 'Not started'" 
-                 class="text-white/70 flex flex-col items-center gap-2">
-                <div>{{ callState.callStatus }}</div>
-                <!-- Show agent state indicator when call is active -->
+            <div class="text-center space-y-4 w-full">
+                <div v-if="callState.callStatus !== 'Not started'" 
+                     class="text-white/70 text-lg">
+                    {{ callState.callStatus }}
+                </div>
+                
+                <!-- Agent State Indicator -->
                 <div v-if="callState.isCalling" 
-                     class="flex items-center gap-2 px-3 py-1 rounded-full"
+                     class="inline-flex items-center gap-2 px-5 py-2 rounded-full"
                      :class="{
                          'bg-green-500/20 text-green-400': callState.agentState === 'Speaking',
                          'bg-blue-500/20 text-blue-400': callState.agentState === 'Listening',
@@ -49,21 +82,29 @@
                              'bg-white/50': callState.agentState === 'Idle'
                          }" />
                     {{ callState.agentState }}
+                    
+                    <!-- User Microphone Activity Indicator -->
+                    <div v-if="callState.agentState === 'Listening'" class="ml-2 flex items-center gap-1">
+                        <div 
+                            v-for="i in 3" 
+                            :key="i" 
+                            class="h-1.5 w-1.5 rounded-full"
+                            :class="[
+                                micActivity > (i-1) * 0.33 ? 'bg-blue-400' : 'bg-blue-400/30',
+                                {'animate-pulse': micActivity > (i-1) * 0.33}
+                            ]"
+                        ></div>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
-                <User class="w-4 h-4 text-white/50" />
-                    Calling As: 
-                    <!-- Compact User Badge -->
-                <button 
-                    class="group flex items-center gap-2 bg-white/10 hover:bg-white/20 rounded-md px-4 py-1.5 transition-all duration-200"
-                    @click="isEditing = false"
-                >
-                    <span class="text-white font-medium text-xl">{{ variables.user_name || '-' }}</span>
-                    <!-- <Settings class="w-4 h-4 text-white/50 group-hover:text-white transition-colors" /> -->
-                </button>
+            <!-- User Info -->
+            <div class="flex items-center gap-2 mt-4 bg-stone-800/50 px-5 py-3 rounded-lg w-full">
+                <User class="w-5 h-5 text-white/50" />
+                <span class="text-white/70">Calling As:</span>
+                <span class="text-white font-medium ml-1">{{ variables.user_name || '-' }}</span>
             </div>
+            
             <Button 
                 v-if="!isLoggedIn" 
                 @click="setActiveTab('register')" 
@@ -72,76 +113,12 @@
                 <AlertTriangle class="w-4 h-4" />
                 <span class="text-sm">Please register/login first</span>
             </Button>
-
-
-        </div>
-
-        <!-- Edit State (RetellVariables functionality) -->
-        <div v-else class="w-full space-y-6">
-            <div class="w-full">
-                <div class="text-white text-sm mb-3 flex justify-between items-center">
-                    <div>
-                        <p class="text-white font-medium">Dev Tool</p>
-                        <p class="text-white/50 text-sm">Configure test user details below</p>
-                    </div>
-                </div>
-                <div class="w-full border border-white/20 rounded-xl bg-white/10 p-4 grid grid-cols-3 gap-4">
-                    <div>
-                        <Label for="dev_name" class="text-sm">Name</Label>
-                        <Input 
-                            id="dev_name"
-                            v-model="userName" 
-                            class="mt-1.5 bg-stone-800 border-white/20" 
-                            placeholder="Enter name"
-                            @change="updateVariable('user_name', $event.target.value)"
-                        />
-                    </div>
-
-                    <div>
-                        <Label for="dev_phone" class="text-sm">Phone</Label>
-                        <Input 
-                            id="dev_phone"
-                            v-model="userPhone" 
-                            class="mt-1.5 bg-stone-800 border-white/20" 
-                            placeholder="Enter phone"
-                            @change="updateVariable('user_phone', $event.target.value)"
-                        />
-                    </div>
-
-                    <div>
-                        <Label for="dev_wallet" class="text-sm">Wallet</Label>
-                        <Input 
-                            id="dev_wallet"
-                            v-model="walletAddress" 
-                            class="mt-1.5 bg-stone-800 border-white/20" 
-                            placeholder="Enter wallet"
-                            @change="updateVariable('wallet_address', $event.target.value)"
-                        />
-                    </div>
-                </div>
-            </div>
-
-            <div class="flex justify-end gap-3">
-                <Button 
-                    variant="ghost" 
-                    class="text-white/70"
-                    @click="isEditing = false"
-                >
-                    Cancel
-                </Button>
-                <Button 
-                    class="bg-stone-900 border-white/20" 
-                    @click="handleSave"
-                >
-                    Save
-                </Button>
-            </div>
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { useStore } from '@nanostores/vue'
 import { Phone, PhoneOff, Loader2, Settings, User, AlertTriangle } from 'lucide-vue-next'
 import { Input } from "@/components/ui/input"
@@ -161,6 +138,102 @@ const walletAddress = ref('')
 const callState = useStore($callState)
 const variables = useStore($retellVariables)
 
+// Add microphone activity tracking
+const micActivity = ref(0)
+let audioContext = null
+let analyser = null
+let microphone = null
+let dataArray = null
+let animationFrameId = null
+
+// Function to start microphone analysis
+const startMicrophoneAnalysis = async () => {
+    try {
+        // Create audio context
+        audioContext = new (window.AudioContext || window.webkitAudioContext)()
+        
+        // Get microphone stream
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        
+        // Create analyser
+        analyser = audioContext.createAnalyser()
+        analyser.fftSize = 256
+        
+        // Connect microphone to analyser
+        microphone = audioContext.createMediaStreamSource(stream)
+        microphone.connect(analyser)
+        
+        // Create data array for frequency data
+        const bufferLength = analyser.frequencyBinCount
+        dataArray = new Uint8Array(bufferLength)
+        
+        // Start analyzing
+        analyzeMicrophone()
+    } catch (error) {
+        console.error('Error accessing microphone:', error)
+    }
+}
+
+// Function to analyze microphone input
+const analyzeMicrophone = () => {
+    if (!analyser) return
+    
+    // Get frequency data
+    analyser.getByteFrequencyData(dataArray)
+    
+    // Calculate average volume
+    let sum = 0
+    for (let i = 0; i < dataArray.length; i++) {
+        sum += dataArray[i]
+    }
+    const average = sum / dataArray.length
+    
+    // Normalize to 0-1 range (typical values are 0-255)
+    micActivity.value = Math.min(average / 128, 1)
+    
+    // Continue analyzing
+    animationFrameId = requestAnimationFrame(analyzeMicrophone)
+}
+
+// Stop microphone analysis
+const stopMicrophoneAnalysis = () => {
+    if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+        animationFrameId = null
+    }
+    
+    if (microphone) {
+        microphone.disconnect()
+        microphone = null
+    }
+    
+    if (analyser) {
+        analyser = null
+    }
+    
+    if (audioContext) {
+        audioContext.close()
+        audioContext = null
+    }
+    
+    dataArray = null
+    micActivity.value = 0
+}
+
+// Watch for call state changes to start/stop microphone analysis
+watch(() => callState.value.isCalling, (isCalling) => {
+    if (isCalling) {
+        startMicrophoneAnalysis()
+    } else {
+        stopMicrophoneAnalysis()
+    }
+})
+
+// Clean up on component unmount
+onUnmounted(() => {
+    stopMicrophoneAnalysis()
+})
+
 const callDisabled = computed(() => {
     return !variables.value.wallet_address || !variables.value.user_phone || Number(variables.value.balance) < 0.001
 })
@@ -171,47 +244,7 @@ const isLoggedIn = computed(() => {
 
 // Initialize form values from store
 onMounted(() => {
-
     console.log('variables', variables.value)
-
-
-    // // Try to load from localStorage first
-    // const savedVariables = localStorage.getItem(STORAGE_KEY)
-    
-    // if (savedVariables) {
-    //     const parsed = JSON.parse(savedVariables)
-    //     userName.value = parsed.find((v: any) => v.key === 'user_name')?.value || ''
-    //     userPhone.value = parsed.find((v: any) => v.key === 'user_phone')?.value || ''
-    //     walletAddress.value = parsed.find((v: any) => v.key === 'wallet_address')?.value || ''
-        
-    //     // Restore to store immediately
-    //     updateVariable('user_name', userName.value)
-    //     updateVariable('user_phone', userPhone.value)
-    //     updateVariable('wallet_address', walletAddress.value)
-    // } else {
-    //     // Initialize with default variables
-    //     const defaults = {
-    //         user_name: 'Steve',
-    //         user_phone: '',
-    //         wallet_address: '0x0'
-    //     }
-        
-    //     userName.value = defaults.user_name
-    //     userPhone.value = defaults.user_phone
-    //     walletAddress.value = defaults.wallet_address
-        
-    //     // Set default values in store
-    //     Object.entries(defaults).forEach(([key, value]) => {
-    //         setVariable(key, value)
-    //     })
-        
-    //     // Save defaults to localStorage
-    //     localStorage.setItem(STORAGE_KEY, JSON.stringify([
-    //         { key: 'user_name', value: defaults.user_name },
-    //         { key: 'user_phone', value: defaults.user_phone },
-    //         { key: 'wallet_address', value: defaults.wallet_address }
-    //     ]))
-    // }
 })
 
 const updateVariable = (key: string, value: string) => {
@@ -219,26 +252,16 @@ const updateVariable = (key: string, value: string) => {
 }
 
 const handleSave = () => {
-    // updateVariable('user_name', userName.value)
-    // updateVariable('user_phone', userPhone.value)
-    // updateVariable('wallet_address', walletAddress.value)
-    
-    // // Save to localStorage
-    // localStorage.setItem(STORAGE_KEY, JSON.stringify([
-    //     { key: 'user_name', value: userName.value },
-    //     { key: 'user_phone', value: userPhone.value },
-    //     { key: 'wallet_address', value: walletAddress.value }
-    // ]))
-    
     isEditing.value = false
 }
 
 const handleCall = async () => {
-        console.log(variables.value.balance)
-        if (Number(variables.value.balance) < 0.0015) {
-                alert('Make sure you have at least 0.0015 ETH')
-                return
-        }
+    // Remove the balance check for web calls
+    // console.log(variables.value.balance)
+    // if (Number(variables.value.balance) < 0.0015) {
+    //         alert('Make sure you have at least 0.0015 ETH')
+    //         return
+    // }
 
     const webCallContainer = document.getElementById('hidden-webcall')
     if (webCallContainer) {
@@ -248,6 +271,24 @@ const handleCall = async () => {
         }
     }
 }
+
+// Add method to end call that can be called from parent
+const endCall = () => {
+    if (callState.value.isCalling) {
+        handleCall() // This will end the call if one is in progress
+    }
+}
+
+// Add a computed property to check if a call is active
+const isCallActive = computed(() => {
+  return callState.value.isCalling;
+});
+
+// Expose the isCallActive property to parent components
+defineExpose({
+  endCall,
+  isCallActive
+});
 
 watch(() => variables.value.user_name, (newVal) => {
   if (!newVal) {

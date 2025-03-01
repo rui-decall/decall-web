@@ -35,11 +35,26 @@
         </div>
         <h3 class="text-lg font-medium">Web Call</h3>
         <p class="text-white/70">Make a call directly from your browser to schedule</p>
+        
+        <!-- Microphone Permission Button -->
+        <button 
+          v-if="!isMicEnabled && isLoggedIn"
+          @click="requestMicPermission" 
+          class="w-full py-2 px-4 bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
+        >
+          <Mic class="w-4 h-4" />
+          Enable Microphone
+        </button>
+        
         <button 
           @click="startWebCall" 
           class="w-full py-3 px-4 bg-white/10 hover:bg-white/15 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 mt-auto"
-          :disabled="!isLoggedIn"
-          :class="{'pointer-events-none': !isLoggedIn}"
+          :disabled="!isLoggedIn || !isMicEnabled"
+          :class="{
+            'pointer-events-none': !isLoggedIn || !isMicEnabled, 
+            'bg-green-500/20 text-green-400 hover:bg-green-500/30': isMicEnabled && isLoggedIn,
+            'opacity-50': !isMicEnabled && isLoggedIn
+          }"
         >
           <Video class="w-4 h-4" />
           Start Web Call
@@ -69,36 +84,23 @@
     <HeadlessModal 
       :is-open="showWebCallModal" 
       @close="handleCloseWebCall"
-      content-class="flex items-center justify-center"
+      content-class="overflow-hidden"
     >
-      <div class="bg-stone-900 rounded-xl border border-white/20 p-8">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-xl font-semibold">Web Call</h2>
-          <button 
-            @click="handleCloseWebCall" 
-            class="text-white/70 hover:text-white focus:outline-none"
-            aria-label="Close modal"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-        <CallCard 
-          ref="callCardRef"
-          @close="handleCloseWebCall" 
-        />
-      </div>
+      <CallCard 
+        ref="callCardRef"
+        @close="handleCloseWebCall" 
+      />
     </HeadlessModal>
   </section>
 </template>
 
 <script setup>
 import { ref, nextTick, onMounted } from 'vue';
-import { Phone, Video, MessageSquare } from 'lucide-vue-next';
+import { Phone, Video, MessageSquare, Mic } from 'lucide-vue-next';
 import HeadlessModal from '../layout/HeadlessModal.vue';
 import CallCard from '../CallCard.vue';
 import posthog from 'posthog-js';
+import { usePermission } from '@vueuse/core';
 
 defineProps({
   isLoggedIn: Boolean
@@ -108,11 +110,48 @@ const showWebCallModal = ref(false);
 const callCardRef = ref(null);
 const callInitiated = ref(false);
 
+// Add microphone permission handling
+const micPermission = usePermission('microphone');
+const isMicEnabled = ref(false);
+
+// Function to request microphone permission
+const requestMicPermission = async () => {
+  try {
+    await navigator.mediaDevices.getUserMedia({ audio: true });
+    isMicEnabled.value = true;
+    posthog.capture('microphone_permission_granted');
+  } catch (error) {
+    console.error('Microphone permission denied:', error);
+    posthog.capture('microphone_permission_denied', { error: error.message });
+    alert('Microphone permission is required for web calls. Please enable it in your browser settings.');
+  }
+};
+
+// Check if microphone is already enabled
+onMounted(() => {
+  if (micPermission.value === 'granted') {
+    isMicEnabled.value = true;
+  }
+});
+
 // Fix: Capture the emit function from defineEmits
 const emit = defineEmits(['selectTab']);
 
 // Function to start web call with tracking
 const startWebCall = () => {
+  // Check if microphone is enabled
+  if (!isMicEnabled.value) {
+    requestMicPermission();
+    return;
+  }
+  
+  // Check if a call is already in progress
+  if (callCardRef.value && callCardRef.value.isCallActive) {
+    // Alert the user or show a notification
+    alert('A call is already in progress. Please end the current call before starting a new one.');
+    return;
+  }
+  
   // Track web call initiated
   posthog.capture('web_call_initiated', {
     logged_in: true
@@ -155,9 +194,9 @@ const handleCloseWebCall = () => {
   // Track web call ended
   posthog.capture('web_call_ended');
   
-  // If call is in progress, end it by triggering the call button again
-  if (document.querySelector('.webcall-button[data-call-active="true"]')) {
-    triggerWebCall(); // This will toggle/end the call
+  // End the call using the exposed method from CallCard
+  if (callCardRef.value) {
+    callCardRef.value.endCall();
   }
   
   showWebCallModal.value = false;
