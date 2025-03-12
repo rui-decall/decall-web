@@ -95,7 +95,7 @@ const sendMessage = async () => {
 //   let response = ''
 
 // console.log(variables.value)
-  const response = await fetch('https://icncc0kb39.execute-api.ap-southeast-1.amazonaws.com/messages', {
+  const response = await fetch('https://decall-rhdveh5il-yikkais-projects.vercel.app/messages', {
     method: 'POST',
     body: JSON.stringify({
       message: query,
