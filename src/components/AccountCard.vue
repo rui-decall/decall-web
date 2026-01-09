@@ -597,53 +597,33 @@ const verifyOtp = async () => {
         // Get Firebase ID token
         const firebaseToken = await result.user.getIdToken()
 
-        // Exchange Firebase token for backend JWT
-        const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/firebase`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                firebase_token: firebaseToken,
-                phone_number: phoneNumber.value
-            })
+        // TODO: Temporarily using Firebase token directly
+        // Later: Exchange Firebase token for backend JWT via /auth/firebase
+        localStorage.setItem(AUTH_KEY, firebaseToken)
+
+        // Track successful verification
+        posthog.capture('otp_verified_success', {
+            method: 'firebase'
         })
-        .then(res => res.json())
 
-        if (response.access_token) {
-            localStorage.setItem(AUTH_KEY, response.access_token)
+        toast.success("Phone number verified successfully", {
+            description: "Welcome back",
+            duration: 5000,
+        })
+        currentState.value = 'welcome'
+        await getUser()
 
-            // Track successful verification
-            posthog.capture('otp_verified_success', {
-                method: 'firebase'
+        // Identify user in PostHog after successful login
+        if (name.value) {
+            posthog.identify(phoneNumber.value, {
+                name: name.value,
+                phone: phoneNumber.value,
+                wallet_address: walletAddress.value
             })
 
-            toast.success("Phone number verified successfully", {
-                description: "Welcome back",
-                duration: 5000,
-            })
-            currentState.value = 'welcome'
-            await getUser()
-
-            // Identify user in PostHog after successful login
-            if (name.value) {
-                posthog.identify(phoneNumber.value, {
-                    name: name.value,
-                    phone: phoneNumber.value,
-                    wallet_address: walletAddress.value
-                })
-
-                transitionToAccount()
-            } else {
-                currentState.value = 'register'
-            }
+            transitionToAccount()
         } else {
-            // Track failed verification
-            posthog.capture('otp_verified_failed', {
-                method: 'firebase'
-            })
-
-            toast.error("Failed to verify code. Please try again.")
+            currentState.value = 'register'
         }
     } catch (error) {
         console.error('Error verifying OTP:', error)
