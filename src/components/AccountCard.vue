@@ -378,31 +378,55 @@ const handleRegister = async () => {
 
     try {
         isRegistering.value = true
-        const user = await registerUser({
-            name: name.value
-        })
+
+        // Get the current Firebase token
+        const firebaseToken = localStorage.getItem(AUTH_KEY)
+        if (!firebaseToken) {
+            throw new Error('No authentication token found')
+        }
+
+        // Sync with backend and update name
+        const user = await syncWithBackend(firebaseToken, name.value)
+
+        // Update local state with the response
+        const _balance = Number(formatEther(await fetchWalletBalance(user.wallet_address)))
+        name.value = user.name
+        phoneNumber.value = user.phone_number
+        walletAddress.value = user.wallet_address
+        balance.value = _balance
+
+        // Update Retell variables
+        setVariable('user_name', user.name)
+        setVariable('user_phone', user.phone_number)
+        setVariable('wallet_address', user.wallet_address)
+        setVariable('balance', _balance)
 
         // Track successful registration
         posthog.capture('user_registered', {
             name_provided: !!name.value
         })
-        
+
         // Identify the user in PostHog
         posthog.identify(phoneNumber.value, {
             name: name.value,
-            phone: phoneNumber.value
+            phone: phoneNumber.value,
+            wallet_address: walletAddress.value
         })
 
-        name.value = user.name
         currentState.value = 'welcome'
         transitionToAccount()
 
     } catch (error) {
         console.error('Error registering user:', error)
-        
+
         // Track registration failure
         posthog.capture('registration_failed', {
             error: error.message
+        })
+
+        toast.error("Registration failed", {
+            description: "Please try again or contact support",
+            duration: 5000,
         })
     } finally {
         isRegistering.value = false
@@ -490,19 +514,6 @@ const getUser = async () => {
     }
 }
 
-const registerUser = async (userData) => {
-    return fetch(`${import.meta.env.PUBLIC_API_URL}/users/me`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${localStorage.getItem(AUTH_KEY)}`
-        },
-        body: JSON.stringify({
-            name: userData.name,
-        })
-    })
-        .then(res => res.json())
-        .then(res => res.user)
-}
 
 // Add these new refs
 const otpDigits = ref(['', '', '', '', '', ''])
@@ -584,6 +595,34 @@ const resendOtp = async () => {
     }
 }
 
+const syncWithBackend = async (firebaseToken, userName = null) => {
+    try {
+        const body = {}
+        if (userName) {
+            body.name = userName
+        }
+
+        const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/firebase`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${firebaseToken}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(body)
+        })
+
+        if (!response.ok) {
+            throw new Error(`Backend sync failed: ${response.statusText}`)
+        }
+
+        const data = await response.json()
+        return data.user
+    } catch (error) {
+        console.error('Error syncing with backend:', error)
+        throw error
+    }
+}
+
 const verifyOtp = async () => {
     if (isVerifying.value || !isOtpComplete.value || !confirmationResult.value) return
 
@@ -597,8 +636,7 @@ const verifyOtp = async () => {
         // Get Firebase ID token
         const firebaseToken = await result.user.getIdToken()
 
-        // TODO: Temporarily using Firebase token directly
-        // Later: Exchange Firebase token for backend JWT via /auth/firebase
+        // Store Firebase token for future API calls
         localStorage.setItem(AUTH_KEY, firebaseToken)
 
         // Track successful verification
@@ -606,12 +644,27 @@ const verifyOtp = async () => {
             method: 'firebase'
         })
 
+        // Sync with backend - this creates or retrieves the user
+        const user = await syncWithBackend(firebaseToken)
+
+        // Update local state with user data from backend
+        const _balance = Number(formatEther(await fetchWalletBalance(user.wallet_address)))
+        name.value = user.name || ''
+        phoneNumber.value = user.phone_number
+        walletAddress.value = user.wallet_address
+        balance.value = _balance
+
+        // Update Retell variables
+        setVariable('user_name', user.name || '')
+        setVariable('user_phone', user.phone_number)
+        setVariable('wallet_address', user.wallet_address)
+        setVariable('balance', _balance)
+
         toast.success("Phone number verified successfully", {
             description: "Welcome back",
             duration: 5000,
         })
         currentState.value = 'welcome'
-        await getUser()
 
         // Identify user in PostHog after successful login
         if (name.value) {
@@ -638,6 +691,11 @@ const verifyOtp = async () => {
         if (error.code === 'auth/invalid-verification-code') {
             toast.error("Invalid verification code", {
                 description: "Please check the code and try again",
+                duration: 5000,
+            })
+        } else if (error.message?.includes('Backend sync failed')) {
+            toast.error("Failed to sync with server", {
+                description: "Please try again or contact support",
                 duration: 5000,
             })
         } else {
