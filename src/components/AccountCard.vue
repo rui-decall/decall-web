@@ -216,7 +216,6 @@ import "intl-tel-input/styles";
 import { toast, Toaster } from 'vue-sonner'
 import posthog from 'posthog-js'
 import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '@/lib/firebase'
-import type { ConfirmationResult } from '@/lib/firebase'
 
 // Add prop for showCloseButton
 const props = defineProps({
@@ -494,8 +493,8 @@ const otpDigits = ref(['', '', '', '', '', ''])
 const otpInputs = ref([])
 const isVerifying = ref(false)
 const resendTimer = ref(0)
-const confirmationResult = ref<ConfirmationResult | null>(null)
-const recaptchaVerifier = ref<RecaptchaVerifier | null>(null)
+const confirmationResult = ref(null)
+const recaptchaVerifier = ref(null)
 
 // Add computed property for OTP completion
 const isOtpComplete = computed(() => {
