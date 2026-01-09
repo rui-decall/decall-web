@@ -135,25 +135,28 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { createClient } from '@supabase/supabase-js'
-import { http, createConfig, connect, getAccount, disconnect, reconnect, readContract, getBalance, sendTransaction, waitForTransactionReceipt } from '@wagmi/core'
-import { formatEther, parseEther } from 'viem'
-import { baseSepolia } from '@wagmi/core/chains'
-import { coinbaseWallet } from '@wagmi/connectors'
+// TEMPORARILY DISABLED: Blockchain features
+// import { http, createConfig, connect, getAccount, disconnect, reconnect, readContract, getBalance, sendTransaction, waitForTransactionReceipt } from '@wagmi/core'
+// import { formatEther, parseEther } from 'viem'
+// import { baseSepolia } from '@wagmi/core/chains'
+// import { coinbaseWallet } from '@wagmi/connectors'
 
 const wallet : any = ref(null);
 const supabaseWallet : any = ref(null);
 const inputPhoneNumber = ref<string>('60123456789')
 const inputName = ref<string>('')
 
-const wagmiConfig = createConfig({
-  chains: [baseSepolia],
-  connectors: [
-    coinbaseWallet({ appName: 'Create Wagmi', preference: 'smartWalletOnly' }),
-  ],
-  transports: {
-    [baseSepolia.id]: http(),
-  },
-})
+// TEMPORARILY DISABLED: Blockchain config
+// const wagmiConfig = createConfig({
+//   chains: [baseSepolia],
+//   connectors: [
+//     coinbaseWallet({ appName: 'Create Wagmi', preference: 'smartWalletOnly' }),
+//   ],
+//   transports: {
+//     [baseSepolia.id]: http(),
+//   },
+// })
+const wagmiConfig = null
 
 const isWalletConnected = ref(false)
 const isConnecting = ref(false)
@@ -161,36 +164,43 @@ const connectedAddress = ref<string>('')
 const uiStep = ref(0)
 
 
-const connectWallet = async () => {
-    console.log('connectWallet')
-    isConnecting.value = true
+// TEMPORARILY DISABLED: Wallet connection
+// const connectWallet = async () => {
+//     console.log('connectWallet')
+//     isConnecting.value = true
 
-    try {
-        await connect(wagmiConfig, { connector: coinbaseWallet({ appName: 'Create Wagmi' }) })
-        const account = getAccount(wagmiConfig)
-        connectedAddress.value = account.address || ''
-        isWalletConnected.value = true
-        
-        showNotification('success', 'Wallet connected successfully!')
-    } catch (error) {
-        console.error('Wallet connection error:', error)
-        showNotification('error', 'Failed to connect wallet')
-    } finally {
-        isConnecting.value = false
-    }
+//     try {
+//         await connect(wagmiConfig, { connector: coinbaseWallet({ appName: 'Create Wagmi' }) })
+//         const account = getAccount(wagmiConfig)
+//         connectedAddress.value = account.address || ''
+//         isWalletConnected.value = true
+
+//         showNotification('success', 'Wallet connected successfully!')
+//     } catch (error) {
+//         console.error('Wallet connection error:', error)
+//         showNotification('error', 'Failed to connect wallet')
+//     } finally {
+//         isConnecting.value = false
+//     }
+// }
+const connectWallet = async () => {
+    showNotification('error', 'Blockchain features temporarily disabled')
 }
 
+// const disconnectWallet = async () => {
+//   try {
+//     await disconnect(wagmiConfig)
+//     isWalletConnected.value = false
+//     connectedAddress.value = ''
+//     wallet.value = null
+//     showNotification('success', 'Wallet disconnected')
+//   } catch (error) {
+//     console.error('Disconnect error:', error)
+//     showNotification('error', 'Failed to disconnect wallet')
+//   }
+// }
 const disconnectWallet = async () => {
-  try {
-    await disconnect(wagmiConfig)
-    isWalletConnected.value = false
-    connectedAddress.value = ''
-    wallet.value = null
-    showNotification('success', 'Wallet disconnected')
-  } catch (error) {
-    console.error('Disconnect error:', error)
-    showNotification('error', 'Failed to disconnect wallet')
-  }
+    showNotification('error', 'Blockchain features temporarily disabled')
 }
 
 // Initialize Supabase client
@@ -228,10 +238,12 @@ const fetchWalletData = async () => {
       .single()
 
     supabaseWallet.value = walletData;
-    
+
     if (walletError) throw walletError
-    
-    supabaseWallet.value.balance = formatEther(await fetchWalletBalance(supabaseWallet.value.wallet_address))
+
+    // TEMPORARILY DISABLED: Blockchain balance query
+    // supabaseWallet.value.balance = formatEther(await fetchWalletBalance(supabaseWallet.value.wallet_address))
+    supabaseWallet.value.balance = 0
     console.log('supabaseWallet', supabaseWallet.value)
 
     // const topupWallet = await fetch(`https://decall-api.junyaoxiandingchan.workers.dev/phones/${inputPhoneNumber.value}/wallets`).then(res => res.json())
@@ -247,14 +259,19 @@ const fetchWalletData = async () => {
   loading.value = false
 }
 
+// TEMPORARILY DISABLED: Blockchain balance query
+// const fetchWalletBalance = async (_walletAddress: any) => {
+//     const balance = (await getBalance(wagmiConfig, {
+//         address: _walletAddress,
+//         chainId: 84532,
+//         unit: "ether",
+//     })).value;
+//     console.log('base_balance', balance)
+//     return balance;
+// }
 const fetchWalletBalance = async (_walletAddress: any) => {
-    const balance = (await getBalance(wagmiConfig, {
-        address: _walletAddress,
-        chainId: 84532,
-        unit: "ether",
-    })).value;
-    console.log('base_balance', balance)
-    return balance;
+    console.log('Blockchain balance query disabled, returning 0')
+    return 0;
 }
 
 
@@ -281,37 +298,40 @@ async function createWallet(_phonenumber: string, _name: string) {
 }
 
 // Handle topup
+// TEMPORARILY DISABLED: Blockchain transactions
+// async function handleTopup() {
+//   processingTopup.value = true
+//   try {
+//     const amount = parseFloat(String(topupAmount.value))
+//     const weiAmount = parseEther(String(amount))
+
+//     const txn = await sendTransaction(wagmiConfig, {
+//       to: supabaseWallet.value.wallet_address,
+//       value: weiAmount,
+//       chainId: 84532,
+//     })
+
+//     console.log('txn', txn)
+
+//     await waitForTransactionReceipt(wagmiConfig, {
+//         hash: txn,
+//         chainId: 84532,
+//         confirmations: 1,
+//     })
+
+//     // Refresh wallet data
+//     await fetchWalletData()
+//     topupAmount.value = 0.00001
+
+//     showNotification('success', `Successfully topped up ${amount} ETH`)
+//   } catch (error) {
+//     showNotification('error', 'Failed to process top-up')
+//     console.error('Error processing top-up:', error)
+//   }
+//     processingTopup.value = false
+// }
 async function handleTopup() {
-
-  processingTopup.value = true
-  try {
-    const amount = parseFloat(String(topupAmount.value))
-    const weiAmount = parseEther(String(amount))
-
-    const txn = await sendTransaction(wagmiConfig, {
-      to: supabaseWallet.value.wallet_address,
-      value: weiAmount,
-      chainId: 84532,
-    })
-
-    console.log('txn', txn)
-
-    await waitForTransactionReceipt(wagmiConfig, {
-        hash: txn,
-        chainId: 84532,
-        confirmations: 1,
-    })
-
-    // Refresh wallet data
-    await fetchWalletData()
-    topupAmount.value = 0.00001
-
-    showNotification('success', `Successfully topped up ${amount} ETH`)
-  } catch (error) {
-    showNotification('error', 'Failed to process top-up')
-    console.error('Error processing top-up:', error)
-  }
-    processingTopup.value = false
+    showNotification('error', 'Blockchain features temporarily disabled')
 }
 
 // Utility functions
@@ -341,12 +361,12 @@ function showNotification(type: 'success' | 'error', message: string) {
 }
 
 onMounted(() => {
-  // Check if wallet is already connected
-  const account = getAccount(wagmiConfig)
-  if (account.isConnected) {
-    isWalletConnected.value = true
-    connectedAddress.value = account.address
-  }
+  // TEMPORARILY DISABLED: Blockchain wallet check
+  // const account = getAccount(wagmiConfig)
+  // if (account.isConnected) {
+  //   isWalletConnected.value = true
+  //   connectedAddress.value = account.address
+  // }
 })
 </script>
 
