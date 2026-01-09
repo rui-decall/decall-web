@@ -27,7 +27,10 @@
                         }" class="tel-input-custom border w-full" @changeNumber="phoneNumber = $event" @changeValidity="isValid = $event"
                             @changeErrorCode="errorCode = $event" />
                     </div>
-                    
+
+                    <!-- reCAPTCHA container (required by Firebase) -->
+                    <div id="recaptcha-container"></div>
+
                     <form @submit.prevent="handlePhoneSubmit" class="flex justify-end">
                         <Button type="submit" class="bg-stone-900 border-white/20"
                             :disabled="isLoading || !isValid">
@@ -212,6 +215,8 @@ import IntlTelInput from "intl-tel-input/vueWithUtils";
 import "intl-tel-input/styles";
 import { toast, Toaster } from 'vue-sonner'
 import posthog from 'posthog-js'
+import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '@/lib/firebase'
+import type { ConfirmationResult } from '@/lib/firebase'
 
 // Add prop for showCloseButton
 const props = defineProps({
@@ -277,24 +282,19 @@ onMounted(async () => {
             currentState.value = 'register'
         }
     }
-    //   const savedUser = localStorage.getItem(STORAGE_KEY)
-    //   if (savedUser && !autoLoginAttempted.value) {
-    //     autoLoginAttempted.value = true
-    //     const userData = JSON.parse(savedUser)
-    //     phoneNumber.value = userData.phone
-    //     name.value = userData.name
 
-    //     try {
-    //       const response = await getUser(userData.phone)
-    //       if (response.exists) {
-    //         currentState.value = 'welcome'
-    //         transitionToAccount()
-    //       }
-    //     } catch (error) {
-    //       console.error('Auto-login failed:', error)
-    //       localStorage.removeItem(STORAGE_KEY)
-    //     }
-    //   }
+    // Initialize Firebase reCAPTCHA verifier
+    try {
+        recaptchaVerifier.value = new RecaptchaVerifier(auth, 'recaptcha-container', {
+            'size': 'invisible',
+            'callback': (response) => {
+                // reCAPTCHA solved, allow signInWithPhoneNumber
+                console.log('reCAPTCHA solved')
+            }
+        })
+    } catch (error) {
+        console.error('Error initializing reCAPTCHA:', error)
+    }
 })
 
 // Generate QR code for wallet address
@@ -310,13 +310,12 @@ const transitionToAccount = () => {
 }
 
 async function requestOtp() {
-    
-    return fetch(`${import.meta.env.PUBLIC_API_URL}/otp/generate`, {
-        method: 'POST',
-        body: JSON.stringify({
-            phone_number: phoneNumber.value
-        })
-    })
+    if (!recaptchaVerifier.value) {
+        throw new Error('reCAPTCHA not initialized')
+    }
+
+    // Use Firebase phone authentication
+    return signInWithPhoneNumber(auth, phoneNumber.value, recaptchaVerifier.value)
 }
 
 const handlePhoneSubmit = async () => {
@@ -324,21 +323,35 @@ const handlePhoneSubmit = async () => {
 
     try {
         isLoading.value = true
-        await requestOtp()
-        
+
+        // Send verification code via Firebase
+        confirmationResult.value = await requestOtp()
+
         // Track OTP requested event
         posthog.capture('otp_requested', {
-            phone_number_provided: true
+            phone_number_provided: true,
+            method: 'firebase'
         })
-        
+
         currentState.value = 'otp'
         startResendTimer()
+
+        toast.success("Verification code sent", {
+            description: "Check your phone for the code",
+            duration: 3000,
+        })
     } catch (error) {
         console.error('Error sending OTP:', error)
-        
+
         // Track OTP request failure
         posthog.capture('otp_request_failed', {
-            error: error.message
+            error: error.message,
+            method: 'firebase'
+        })
+
+        toast.error("Failed to send verification code", {
+            description: error.message || "Please try again",
+            duration: 5000,
         })
     } finally {
         isLoading.value = false
@@ -481,6 +494,8 @@ const otpDigits = ref(['', '', '', '', '', ''])
 const otpInputs = ref([])
 const isVerifying = ref(false)
 const resendTimer = ref(0)
+const confirmationResult = ref<ConfirmationResult | null>(null)
+const recaptchaVerifier = ref<RecaptchaVerifier | null>(null)
 
 // Add computed property for OTP completion
 const isOtpComplete = computed(() => {
@@ -526,39 +541,69 @@ const startResendTimer = () => {
 const resendOtp = async () => {
     if (resendTimer.value > 0) return
 
-    await requestOtp()
-    startResendTimer()
+    try {
+        // Reset OTP digits
+        otpDigits.value = ['', '', '', '', '', '']
+
+        // Request new OTP via Firebase
+        confirmationResult.value = await requestOtp()
+
+        startResendTimer()
+
+        toast.success("New code sent", {
+            description: "Check your phone for the new code",
+            duration: 3000,
+        })
+    } catch (error) {
+        console.error('Error resending OTP:', error)
+        toast.error("Failed to resend code", {
+            description: "Please try again",
+            duration: 5000,
+        })
+    }
 }
 
 const verifyOtp = async () => {
-    if (isVerifying.value || !isOtpComplete.value) return
+    if (isVerifying.value || !isOtpComplete.value || !confirmationResult.value) return
 
     isVerifying.value = true
 
     const otp = otpDigits.value.join('')
     try {
-        const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/otp/verify`, {
+        // Verify the OTP code with Firebase
+        const result = await confirmationResult.value.confirm(otp)
+
+        // Get Firebase ID token
+        const firebaseToken = await result.user.getIdToken()
+
+        // Exchange Firebase token for backend JWT
+        const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/firebase`, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({
-                phone_number: phoneNumber.value,
-                otp: otp
+                firebase_token: firebaseToken,
+                phone_number: phoneNumber.value
             })
         })
         .then(res => res.json())
 
         if (response.access_token) {
             localStorage.setItem(AUTH_KEY, response.access_token)
-            
+
             // Track successful verification
-            posthog.capture('otp_verified_success')
-            
+            posthog.capture('otp_verified_success', {
+                method: 'firebase'
+            })
+
             toast.success("Phone number verified successfully", {
                 description: "Welcome back",
                 duration: 5000,
             })
             currentState.value = 'welcome'
             await getUser()
-            
+
             // Identify user in PostHog after successful login
             if (name.value) {
                 posthog.identify(phoneNumber.value, {
@@ -566,26 +611,40 @@ const verifyOtp = async () => {
                     phone: phoneNumber.value,
                     wallet_address: walletAddress.value
                 })
-                
+
                 transitionToAccount()
             } else {
                 currentState.value = 'register'
             }
         } else {
             // Track failed verification
-            posthog.capture('otp_verified_failed')
-            
+            posthog.capture('otp_verified_failed', {
+                method: 'firebase'
+            })
+
             toast.error("Failed to verify code. Please try again.")
         }
     } catch (error) {
         console.error('Error verifying OTP:', error)
-        
+
         // Track verification error
         posthog.capture('otp_verification_error', {
-            error: error.message
+            error: error.message,
+            method: 'firebase'
         })
-        
-        toast.error("An error occurred. Please try again.")
+
+        // Check if it's an invalid code error
+        if (error.code === 'auth/invalid-verification-code') {
+            toast.error("Invalid verification code", {
+                description: "Please check the code and try again",
+                duration: 5000,
+            })
+        } else {
+            toast.error("An error occurred. Please try again.", {
+                description: error.message,
+                duration: 5000,
+            })
+        }
     } finally {
         isVerifying.value = false
     }
