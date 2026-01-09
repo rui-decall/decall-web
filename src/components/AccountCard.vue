@@ -345,12 +345,28 @@ const handlePhoneSubmit = async () => {
         // Track OTP request failure
         posthog.capture('otp_request_failed', {
             error: error.message,
+            error_code: error.code,
             method: 'firebase'
         })
 
-        toast.error("Failed to send verification code", {
-            description: error.message || "Please try again",
-            duration: 5000,
+        // Handle specific Firebase errors
+        let errorMessage = "Failed to send verification code"
+        let errorDescription = error.message || "Please try again"
+
+        if (error.code === 'auth/quota-exceeded' || error.message?.includes('Error code: 39')) {
+            errorMessage = "SMS quota exceeded"
+            errorDescription = "Please configure test phone numbers in Firebase Console or enable billing"
+        } else if (error.code === 'auth/captcha-check-failed') {
+            errorMessage = "CAPTCHA verification failed"
+            errorDescription = "Please add your domain to Firebase authorized domains"
+        } else if (error.code === 'auth/invalid-phone-number') {
+            errorMessage = "Invalid phone number"
+            errorDescription = "Please enter a valid phone number with country code"
+        }
+
+        toast.error(errorMessage, {
+            description: errorDescription,
+            duration: 7000,
         })
     } finally {
         isLoading.value = false
@@ -555,9 +571,15 @@ const resendOtp = async () => {
         })
     } catch (error) {
         console.error('Error resending OTP:', error)
+
+        let errorDescription = "Please try again"
+        if (error.code === 'auth/quota-exceeded' || error.message?.includes('Error code: 39')) {
+            errorDescription = "SMS quota exceeded. Use test phone numbers or enable billing in Firebase"
+        }
+
         toast.error("Failed to resend code", {
-            description: "Please try again",
-            duration: 5000,
+            description: errorDescription,
+            duration: 7000,
         })
     }
 }
