@@ -235,7 +235,9 @@ onUnmounted(() => {
 })
 
 const callDisabled = computed(() => {
-    return !variables.value.wallet_address || !variables.value.user_phone || Number(variables.value.balance) < 0.001
+    // TEMPORARILY DISABLED: Blockchain balance check
+    // return !variables.value.wallet_address || !variables.value.user_phone || Number(variables.value.balance) < 0.001
+    return !variables.value.wallet_address || !variables.value.user_phone
 })
 
 const isLoggedIn = computed(() => {

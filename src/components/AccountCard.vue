@@ -245,15 +245,16 @@ const errorCode = ref(null)
 const { copy } = useClipboard()
 
 import { createClient } from '@supabase/supabase-js'
-import { http, createConfig, getBalance } from '@wagmi/core'
-import { formatEther, parseEther } from 'viem'
-import { base } from '@wagmi/core/chains'
-const wagmiConfig = createConfig({
-    chains: [base],
-    transports: {
-        [base.id]: http(),
-    },
-})
+// TEMPORARILY DISABLED: Blockchain features
+// import { http, createConfig, getBalance } from '@wagmi/core'
+// import { formatEther, parseEther } from 'viem'
+// import { base } from '@wagmi/core/chains'
+// const wagmiConfig = createConfig({
+//     chains: [base],
+//     transports: {
+//         [base.id]: http(),
+//     },
+// })
 // Initialize Supabase client
 // const supabaseUrl = import.meta.env.PUBLIC_SUPABASE_URL
 // const supabaseAnonKey = import.meta.env.PUBLIC_SUPABASE_ANON_KEY
@@ -389,7 +390,9 @@ const handleRegister = async () => {
         const user = await syncWithBackend(firebaseToken, name.value)
 
         // Update local state with the response
-        const _balance = Number(formatEther(await fetchWalletBalance(user.wallet_address)))
+        // TEMPORARILY DISABLED: Blockchain balance query
+        // const _balance = Number(formatEther(await fetchWalletBalance(user.wallet_address)))
+        const _balance = await fetchWalletBalance(user.wallet_address)
         name.value = user.name
         phoneNumber.value = user.phone_number
         walletAddress.value = user.wallet_address
@@ -461,14 +464,20 @@ const handleSignOut = () => {
     setVariable('balance', '0')
 }
 
+// TEMPORARILY DISABLED: Blockchain balance query
+// const fetchWalletBalance = async (_walletAddress) => {
+//     const balance = (await getBalance(wagmiConfig, {
+//         address: _walletAddress,
+//         chainId: base.id,
+//         unit: "ether",
+//     })).value;
+//     console.log('base_balance', balance)
+//     return Number(balance);
+// }
 const fetchWalletBalance = async (_walletAddress) => {
-    const balance = (await getBalance(wagmiConfig, {
-        address: _walletAddress,
-        chainId: base.id,
-        unit: "ether",
-    })).value;
-    console.log('base_balance', balance)
-    return Number(balance);
+    // Return 0 while blockchain features are disabled
+    console.log('Blockchain balance query disabled, returning 0')
+    return 0;
 }
 // Modify getUser to save data
 const getUser = async () => {
@@ -491,7 +500,9 @@ const getUser = async () => {
         // supabaseWallet.value = response.user
         // supabaseWallet.value.balance = formatEther(await fetchWalletBalance(supabaseWallet.value.wallet_address))
         // supabaseWallet.value.exists = true
-        const _balance = Number(formatEther(await fetchWalletBalance(response.user.wallet_address)))
+        // TEMPORARILY DISABLED: Blockchain balance query
+        // const _balance = Number(formatEther(await fetchWalletBalance(response.user.wallet_address)))
+        const _balance = await fetchWalletBalance(response.user.wallet_address)
         // supabaseWallet.value.exists = true
         console.log('user', response.user)
         name.value = response.user.name
@@ -648,7 +659,9 @@ const verifyOtp = async () => {
         const user = await syncWithBackend(firebaseToken)
 
         // Update local state with user data from backend
-        const _balance = Number(formatEther(await fetchWalletBalance(user.wallet_address)))
+        // TEMPORARILY DISABLED: Blockchain balance query
+        // const _balance = Number(formatEther(await fetchWalletBalance(user.wallet_address)))
+        const _balance = await fetchWalletBalance(user.wallet_address)
         name.value = user.name || ''
         phoneNumber.value = user.phone_number
         walletAddress.value = user.wallet_address
@@ -712,10 +725,12 @@ const verifyOtp = async () => {
 // Add refresh balance function
 const refreshBalance = async () => {
     if (!walletAddress.value || isRefreshing.value) return;
-    
+
     isRefreshing.value = true;
     try {
-        const newBalance = Number(formatEther(await fetchWalletBalance(walletAddress.value)));
+        // TEMPORARILY DISABLED: Blockchain balance query
+        // const newBalance = Number(formatEther(await fetchWalletBalance(walletAddress.value)));
+        const newBalance = await fetchWalletBalance(walletAddress.value);
         balance.value = newBalance;
         
         // Update Retell variable
