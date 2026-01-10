@@ -275,11 +275,21 @@ onMounted(async () => {
     if (savedAuth) {
         console.log('savedAuth', savedAuth)
         currentState.value = 'welcome'
-        await getUser()
-        if (name.value) {
+        const result = await getUser()
+
+        if (result.authError) {
+            // Token is invalid/expired, go back to phone login
+            console.log('Auth token invalid, redirecting to phone login')
+            currentState.value = 'phone'
+        } else if (name.value) {
+            // User exists and has a name, go to account
             transitionToAccount()
-        } else {
+        } else if (result.exists) {
+            // User exists but has no name, go to register
             currentState.value = 'register'
+        } else {
+            // No user found, go to phone login
+            currentState.value = 'phone'
         }
     }
 
@@ -383,7 +393,13 @@ const handleRegister = async () => {
         // Get the current Firebase token
         const firebaseToken = localStorage.getItem(AUTH_KEY)
         if (!firebaseToken) {
-            throw new Error('No authentication token found')
+            // No token, redirect to phone login
+            toast.error("Session expired", {
+                description: "Please sign in with your phone number again",
+                duration: 5000,
+            })
+            currentState.value = 'phone'
+            return
         }
 
         // Sync with backend and update name
@@ -391,7 +407,6 @@ const handleRegister = async () => {
 
         // Update local state with the response
         // TEMPORARILY DISABLED: Blockchain balance query
-        // const _balance = Number(formatEther(await fetchWalletBalance(user.wallet_address)))
         const _balance = await fetchWalletBalance(user.wallet_address)
         name.value = user.name
         phoneNumber.value = user.phone_number
@@ -427,10 +442,21 @@ const handleRegister = async () => {
             error: error.message
         })
 
-        toast.error("Registration failed", {
-            description: "Please try again or contact support",
-            duration: 5000,
-        })
+        // Check if it's an auth-related error
+        if (error.message?.includes('401') || error.message?.includes('Unauthorized') || error.message?.includes('Backend sync failed')) {
+            // Clear invalid token and redirect to phone login
+            localStorage.removeItem(AUTH_KEY)
+            toast.error("Session expired", {
+                description: "Please sign in with your phone number again",
+                duration: 5000,
+            })
+            currentState.value = 'phone'
+        } else {
+            toast.error("Registration failed", {
+                description: "Please try again or contact support",
+                duration: 5000,
+            })
+        }
     } finally {
         isRegistering.value = false
     }
@@ -482,46 +508,50 @@ const fetchWalletBalance = async (_walletAddress) => {
 // Modify getUser to save data
 const getUser = async () => {
     try {
-        // const { data: walletData, error: walletError } = await supabase
-        //     .from('users')
-        //     .select('*')
-        //     .eq('phone_number', phone)
-        //     .single()
-
-        // if (walletError) throw walletError
-
         const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/users/me`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem(AUTH_KEY)}`
             }
-        }).then(res => res.json())
+        })
 
-        // supabaseWallet.value = response.user
-        // supabaseWallet.value.balance = formatEther(await fetchWalletBalance(supabaseWallet.value.wallet_address))
-        // supabaseWallet.value.exists = true
+        // Check if response is OK (status 200-299)
+        if (!response.ok) {
+            console.log('getUser failed with status:', response.status)
+            // Clear invalid token from localStorage
+            localStorage.removeItem(AUTH_KEY)
+            return { exists: false, authError: true }
+        }
+
+        const data = await response.json()
+
+        // Check if user data exists in response
+        if (!data.user) {
+            console.log('No user data in response')
+            localStorage.removeItem(AUTH_KEY)
+            return { exists: false, authError: true }
+        }
+
         // TEMPORARILY DISABLED: Blockchain balance query
-        // const _balance = Number(formatEther(await fetchWalletBalance(response.user.wallet_address)))
-        const _balance = await fetchWalletBalance(response.user.wallet_address)
-        // supabaseWallet.value.exists = true
-        console.log('user', response.user)
-        name.value = response.user.name
+        const _balance = await fetchWalletBalance(data.user.wallet_address)
+        console.log('user', data.user)
+        name.value = data.user.name
         balance.value = _balance
-        walletAddress.value = response.user.wallet_address
-        phoneNumber.value = response.user.phone_number
-        // Save to local storage
-        // saveToLocalStorage(supabaseWallet.value)
+        walletAddress.value = data.user.wallet_address
+        phoneNumber.value = data.user.phone_number
 
         // Update Retell variables
-        setVariable('user_name', response.user.name)
-        setVariable('user_phone', response.user.phone_number)
-        setVariable('wallet_address', response.user.wallet_address)
+        setVariable('user_name', data.user.name)
+        setVariable('user_phone', data.user.phone_number)
+        setVariable('wallet_address', data.user.wallet_address)
         setVariable('balance', _balance)
 
-        // return response.user
+        return { exists: true }
     } catch (error) {
         console.log('Error checking user:', error)
-        return { exists: false }
+        // Clear token on error - it might be invalid/expired
+        localStorage.removeItem(AUTH_KEY)
+        return { exists: false, authError: true }
     }
 }
 
@@ -623,7 +653,8 @@ const syncWithBackend = async (firebaseToken, userName = null) => {
         })
 
         if (!response.ok) {
-            throw new Error(`Backend sync failed: ${response.statusText}`)
+            // Include status code in error for better error handling
+            throw new Error(`Backend sync failed: ${response.status} ${response.statusText}`)
         }
 
         const data = await response.json()
