@@ -146,17 +146,16 @@
                         </Button>
                     </div>
                 </div>
-                
-                <!-- Wallet Section -->
-                <div class="p-6 flex-1">
+
+                <!-- COMMENTED OUT: Wallet Section -->
+                <!-- <div class="p-6 flex-1">
                     <div class="space-y-6">
-                        <!-- Wallet Balance -->
                         <div class="text-center relative">
                             <p class="text-white/50 text-sm">Wallet Balance</p>
                             <div class="flex items-center justify-center gap-2">
                                 <p class="text-white text-xl font-bold">{{ Math.round(balance * 100000) / 100000 }} ETH</p>
-                                <button 
-                                    @click="refreshBalance" 
+                                <button
+                                    @click="refreshBalance"
                                     class="text-white/50 hover:text-white/80 transition-colors p-1 rounded-full hover:bg-white/10"
                                     :class="{'animate-spin': isRefreshing}"
                                     :disabled="isRefreshing"
@@ -166,7 +165,6 @@
                             </div>
                         </div>
 
-                        <!-- QR Code and Address -->
                         <div class="flex flex-col items-center space-y-4">
                             <img :src="qrCode" alt="Wallet QR Code" class="w-32 h-32 bg-white rounded-xl" />
 
@@ -184,7 +182,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
+
             </div>
         </div>
         <div class="relative z-[999]">
@@ -200,16 +199,17 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import {
     ChevronRight,
-    Copy,
+    // Copy, // COMMENTED OUT: Wallet feature
     LogOut,
     Phone,
     Loader2,
     SaveAll,
     ChevronLeft,
-    RefreshCw
+    // RefreshCw // COMMENTED OUT: Wallet feature
 } from 'lucide-vue-next'
-import { useQRCode } from '@vueuse/integrations/useQRCode'
-import { useClipboard } from '@vueuse/core'
+// COMMENTED OUT: Wallet features
+// import { useQRCode } from '@vueuse/integrations/useQRCode'
+// import { useClipboard } from '@vueuse/core'
 import CallCard from './CallCard.vue'
 import IntlTelInput from "intl-tel-input/vueWithUtils";
 import "intl-tel-input/styles";
@@ -234,15 +234,17 @@ const currentState = ref('phone')
 const phoneNumber = ref('')
 const name = ref('')
 const walletAddress = ref('')
-const balance = ref(0)
-const isRefreshing = ref(false)
+// COMMENTED OUT: Wallet balance features
+// const balance = ref(0)
+// const isRefreshing = ref(false)
 
 // const supabaseWallet = ref(null)
 const accountView = ref('wallet')
 const isValid = ref(false)
 const errorCode = ref(null)
 
-const { copy } = useClipboard()
+// COMMENTED OUT: Wallet clipboard feature
+// const { copy } = useClipboard()
 
 import { createClient } from '@supabase/supabase-js'
 // TEMPORARILY DISABLED: Blockchain features
@@ -307,8 +309,8 @@ onMounted(async () => {
     }
 })
 
-// Generate QR code for wallet address
-const qrCode = useQRCode(walletAddress)
+// COMMENTED OUT: Generate QR code for wallet address
+// const qrCode = useQRCode(walletAddress)
 
 const isLoading = ref(false)
 const isRegistering = ref(false)
@@ -406,18 +408,18 @@ const handleRegister = async () => {
         const user = await syncWithBackend(firebaseToken, name.value)
 
         // Update local state with the response
-        // TEMPORARILY DISABLED: Blockchain balance query
-        const _balance = await fetchWalletBalance(user.wallet_address)
+        // COMMENTED OUT: Blockchain balance query
+        // const _balance = await fetchWalletBalance(user.wallet_address)
         name.value = user.name
         phoneNumber.value = user.phone_number
         walletAddress.value = user.wallet_address
-        balance.value = _balance
+        // balance.value = _balance
 
         // Update Retell variables
         setVariable('user_name', user.name)
         setVariable('user_phone', user.phone_number)
         setVariable('wallet_address', user.wallet_address)
-        setVariable('balance', _balance)
+        // setVariable('balance', _balance)
 
         // Track successful registration
         posthog.capture('user_registered', {
@@ -462,23 +464,19 @@ const handleRegister = async () => {
     }
 }
 
-const copyAddress = async () => {
-    await copy(walletAddress.value)
-    // You might want to add a toast notification here
-}
 
 const handleSignOut = () => {
     // Track sign out event
     posthog.capture('user_signed_out')
-    
+
     // Reset PostHog user
     posthog.reset()
-    
+
     currentState.value = 'phone'
     name.value = ''
     phoneNumber.value = ''
     walletAddress.value = ''
-    balance.value = 0
+    // balance.value = 0
 
     // Clear local storage
     localStorage.removeItem(AUTH_KEY)
@@ -487,24 +485,49 @@ const handleSignOut = () => {
     setVariable('user_name', '')
     setVariable('user_phone', '')
     setVariable('wallet_address', '')
-    setVariable('balance', '0')
+    // setVariable('balance', '0')
 }
 
-// TEMPORARILY DISABLED: Blockchain balance query
-// const fetchWalletBalance = async (_walletAddress) => {
-//     const balance = (await getBalance(wagmiConfig, {
-//         address: _walletAddress,
-//         chainId: base.id,
-//         unit: "ether",
-//     })).value;
-//     console.log('base_balance', balance)
-//     return Number(balance);
+// COMMENTED OUT: Wallet functions
+// const copyAddress = async () => {
+//     await copy(walletAddress.value)
+//     // You might want to add a toast notification here
 // }
-const fetchWalletBalance = async (_walletAddress) => {
-    // Return 0 while blockchain features are disabled
-    console.log('Blockchain balance query disabled, returning 0')
-    return 0;
-}
+
+// const refreshBalance = async () => {
+//     if (!walletAddress.value || isRefreshing.value) return;
+//
+//     isRefreshing.value = true;
+//     try {
+//         // TEMPORARILY DISABLED: Blockchain balance query
+//         // const newBalance = Number(formatEther(await fetchWalletBalance(walletAddress.value)));
+//         const newBalance = await fetchWalletBalance(walletAddress.value);
+//         balance.value = newBalance;
+//
+//         // Update Retell variable
+//         setVariable('balance', newBalance);
+//
+//         // Track balance refresh
+//         posthog.capture('wallet_balance_refreshed', {
+//             wallet_address: walletAddress.value,
+//             balance: newBalance
+//         })
+//
+//         toast.success("Balance updated successfully");
+//     } catch (error) {
+//         console.error("Error refreshing balance:", error);
+//
+//         // Track balance refresh failure
+//         posthog.capture('wallet_balance_refresh_failed', {
+//             error: error.message
+//         })
+//
+//         toast.error("Failed to refresh balance");
+//     } finally {
+//         isRefreshing.value = false;
+//     }
+// }
+
 // Modify getUser to save data
 const getUser = async () => {
     try {
@@ -532,11 +555,11 @@ const getUser = async () => {
             return { exists: false, authError: true }
         }
 
-        // TEMPORARILY DISABLED: Blockchain balance query
-        const _balance = await fetchWalletBalance(data.user.wallet_address)
+        // COMMENTED OUT: Blockchain balance query
+        // const _balance = await fetchWalletBalance(data.user.wallet_address)
         console.log('user', data.user)
         name.value = data.user.name
-        balance.value = _balance
+        // balance.value = _balance
         walletAddress.value = data.user.wallet_address
         phoneNumber.value = data.user.phone_number
 
@@ -544,7 +567,7 @@ const getUser = async () => {
         setVariable('user_name', data.user.name)
         setVariable('user_phone', data.user.phone_number)
         setVariable('wallet_address', data.user.wallet_address)
-        setVariable('balance', _balance)
+        // setVariable('balance', _balance)
 
         return { exists: true }
     } catch (error) {
@@ -690,19 +713,18 @@ const verifyOtp = async () => {
         const user = await syncWithBackend(firebaseToken)
 
         // Update local state with user data from backend
-        // TEMPORARILY DISABLED: Blockchain balance query
-        // const _balance = Number(formatEther(await fetchWalletBalance(user.wallet_address)))
-        const _balance = await fetchWalletBalance(user.wallet_address)
+        // COMMENTED OUT: Blockchain balance query
+        // const _balance = await fetchWalletBalance(user.wallet_address)
         name.value = user.name || ''
         phoneNumber.value = user.phone_number
         walletAddress.value = user.wallet_address
-        balance.value = _balance
+        // balance.value = _balance
 
         // Update Retell variables
         setVariable('user_name', user.name || '')
         setVariable('user_phone', user.phone_number)
         setVariable('wallet_address', user.wallet_address)
-        setVariable('balance', _balance)
+        // setVariable('balance', _balance)
 
         toast.success("Phone number verified successfully", {
             description: "Welcome back",
@@ -753,40 +775,6 @@ const verifyOtp = async () => {
     }
 }
 
-// Add refresh balance function
-const refreshBalance = async () => {
-    if (!walletAddress.value || isRefreshing.value) return;
-
-    isRefreshing.value = true;
-    try {
-        // TEMPORARILY DISABLED: Blockchain balance query
-        // const newBalance = Number(formatEther(await fetchWalletBalance(walletAddress.value)));
-        const newBalance = await fetchWalletBalance(walletAddress.value);
-        balance.value = newBalance;
-        
-        // Update Retell variable
-        setVariable('balance', newBalance);
-        
-        // Track balance refresh
-        posthog.capture('wallet_balance_refreshed', {
-            wallet_address: walletAddress.value,
-            balance: newBalance
-        })
-        
-        toast.success("Balance updated successfully");
-    } catch (error) {
-        console.error("Error refreshing balance:", error);
-        
-        // Track balance refresh failure
-        posthog.capture('wallet_balance_refresh_failed', {
-            error: error.message
-        })
-        
-        toast.error("Failed to refresh balance");
-    } finally {
-        isRefreshing.value = false;
-    }
-}
 </script>
 
 <style scoped>
