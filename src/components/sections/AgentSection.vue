@@ -1,13 +1,16 @@
 <template>
-  <section class="flex flex-col gap-8 max-w-3xl mx-auto w-full" :class="{'opacity-50': !isLoggedIn}">
+  <!-- COMMENTED OUT: opacity-50 class - Registration no longer required -->
+  <section class="flex flex-col gap-8 max-w-3xl mx-auto w-full">
     <div class="flex flex-col items-center gap-3 text-center">
-      <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-xl">2</div>
+      <div class="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center text-white font-bold text-xl">1</div>
       <h2 class="text-2xl font-semibold">Talk to Agent</h2>
     </div>
 
+    <!-- COMMENTED OUT: Login required warning - Registration no longer required
     <div v-if="!isLoggedIn" class="text-center text-red-500 text-sm mb-6">
       Please register first before talking to the agent
     </div>
+    -->
     
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       <!-- Phone Call -->
@@ -17,11 +20,10 @@
         </div>
         <h3 class="text-lg font-medium">Phone Call</h3>
         <p class="text-white/70">Call directly from your phone to schedule an appointment</p>
-        <a 
-          href="tel:+1(419)7806507" 
+        <a
+          href="tel:+1(419)7806507"
           @click="trackPhoneCall"
           class="w-full py-3 px-4 bg-white/10 hover:bg-white/15 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 mt-auto"
-          :class="{'pointer-events-none': !isLoggedIn}"
         >
           <Phone class="w-4 h-4" />
           +1 (419) 780-6507
@@ -37,23 +39,23 @@
         <p class="text-white/70">Make a call directly from your browser to schedule</p>
         
         <!-- Microphone Permission Button -->
-        <button 
-          v-if="!isMicEnabled && isLoggedIn"
-          @click="requestMicPermission" 
+        <button
+          v-if="!isMicEnabled"
+          @click="requestMicPermission"
           class="w-full py-2 px-4 bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2"
         >
           <Mic class="w-4 h-4" />
           Enable Microphone
         </button>
-        
-        <button 
-          @click="startWebCall" 
+
+        <button
+          @click="startWebCall"
           class="w-full py-3 px-4 bg-white/10 hover:bg-white/15 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 mt-auto"
-          :disabled="!isLoggedIn || !isMicEnabled"
+          :disabled="!isMicEnabled"
           :class="{
-            'pointer-events-none': !isLoggedIn || !isMicEnabled, 
-            'bg-green-500/20 text-green-400 hover:bg-green-500/30': isMicEnabled && isLoggedIn,
-            'opacity-50': !isMicEnabled && isLoggedIn
+            'pointer-events-none': !isMicEnabled,
+            'bg-green-500/20 text-green-400 hover:bg-green-500/30': isMicEnabled,
+            'opacity-50': !isMicEnabled
           }"
         >
           <Video class="w-4 h-4" />
@@ -68,11 +70,9 @@
         </div>
         <h3 class="text-lg font-medium">WhatsApp</h3>
         <p class="text-white/70">Chat with us on WhatsApp to schedule an appointment</p>
-        <button 
-          @click="openWhatsApp" 
+        <button
+          @click="openWhatsApp"
           class="w-full py-3 px-4 bg-white/10 hover:bg-white/15 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 mt-auto"
-          :disabled="!isLoggedIn"
-          :class="{'pointer-events-none': !isLoggedIn}"
         >
           <MessageSquare class="w-4 h-4" />
           Chat on WhatsApp
@@ -102,9 +102,10 @@ import CallCard from '../CallCard.vue';
 import posthog from 'posthog-js';
 import { usePermission } from '@vueuse/core';
 
-defineProps({
-  isLoggedIn: Boolean
-});
+// COMMENTED OUT: isLoggedIn prop - Registration no longer required
+// defineProps({
+//   isLoggedIn: Boolean
+// });
 
 const showWebCallModal = ref(false);
 const callCardRef = ref(null);

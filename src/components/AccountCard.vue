@@ -13,7 +13,9 @@
                 </svg>
             </button>
             
-            <!-- Phone Number Entry State -->
+            <!-- COMMENTED OUT: Login/Registration Flow - User no longer needs to register with phone number and name -->
+
+            <!-- Phone Number Entry State
             <div v-if="currentState === 'phone'" class="p-6">
                 <h3 class="text-white text-2xl font-bold mb-2">Welcome</h3>
                 <p class="text-white/50 text-sm mb-4">Enter your phone number to continue</p>
@@ -28,7 +30,6 @@
                             @changeErrorCode="errorCode = $event" />
                     </div>
 
-                    <!-- reCAPTCHA container (required by Firebase) -->
                     <div id="recaptcha-container"></div>
 
                     <form @submit.prevent="handlePhoneSubmit" class="flex justify-end">
@@ -45,8 +46,9 @@
                     </form>
                 </div>
             </div>
+            -->
 
-            <!-- OTP state -->
+            <!-- OTP state
             <div v-if="currentState === 'otp'" class="p-6">
                 <h3 class="text-white text-2xl font-bold mb-2">Verify Phone</h3>
                 <p class="text-white/50 text-sm mb-4">Enter the verification code sent to your phone</p>
@@ -69,7 +71,7 @@
                             {{ resendTimer > 0 ? `Resend code in ${resendTimer}s` : 'Resend code' }}
                         </button>
                     </div>
-                    
+
                     <div class="flex justify-between">
                         <Button variant="ghost" class="border-white/20" @click="currentState = 'phone'">
                             <ChevronLeft class="w-4 h-4 mr-2" />
@@ -88,8 +90,9 @@
                     </div>
                 </div>
             </div>
+            -->
 
-            <!-- Register State -->
+            <!-- Register State
             <div v-if="currentState === 'register'" class="p-6">
                 <h3 class="text-white text-2xl font-bold mb-2">Register</h3>
                 <p class="text-white/50 text-sm mb-4">Create a new account using your phone number</p>
@@ -102,7 +105,7 @@
                                 placeholder="Enter name" @keyup.enter="handleRegister" />
                         </div>
                     </form>
-                    
+
                     <div class="flex justify-end">
                         <Button class="bg-stone-900 border-white/20" @click="handleRegister" :disabled="isRegistering">
                             <span class="flex items-center">
@@ -116,21 +119,22 @@
                     </div>
                 </div>
             </div>
+            -->
 
-            <!-- Welcome Back State -->
+            <!-- Welcome Back State
             <div v-if="currentState === 'welcome'" class="p-6 flex flex-col items-center justify-center">
                 <h3 class="text-white text-2xl font-bold mb-2">Welcome Back!</h3>
                 <p class="text-white/50 text-sm mb-4">{{ name }}</p>
-                
+
                 <div class="flex flex-col items-center gap-2">
                     <span class="loading loading-spinner loading-md"></span>
                     <p class="text-white/70">Logging you in...</p>
                 </div>
             </div>
+            -->
 
-            <!-- Account State - Horizontal Layout -->
+            <!-- Account State - Horizontal Layout
             <div v-if="currentState === 'account'" class="flex flex-col md:flex-row">
-                <!-- User Info Section -->
                 <div class="p-6 border-b md:border-b-0 md:border-r border-white/20 md:w-1/3">
                     <div class="flex flex-col">
                         <h3 class="text-white text-2xl font-bold mb-1">{{ name }}</h3>
@@ -147,8 +151,7 @@
                     </div>
                 </div>
 
-                <!-- COMMENTED OUT: Wallet Section -->
-                <!-- <div class="p-6 flex-1">
+                <div class="p-6 flex-1">
                     <div class="space-y-6">
                         <div class="text-center relative">
                             <p class="text-white/50 text-sm">Wallet Balance</p>
@@ -182,8 +185,15 @@
                             </div>
                         </div>
                     </div>
-                </div> -->
+                </div>
 
+            </div>
+            -->
+
+            <!-- Placeholder - Registration not required -->
+            <div class="p-6 text-center">
+                <h3 class="text-white text-2xl font-bold mb-2">Welcome</h3>
+                <p class="text-white/50 text-sm">Registration is not required. You can proceed directly.</p>
             </div>
         </div>
         <div class="relative z-[999]">
@@ -194,28 +204,29 @@
 
 <script setup>
 import { ref, onMounted, computed, watch, useAttrs } from 'vue'
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Button } from "@/components/ui/button"
-import {
-    ChevronRight,
-    // Copy, // COMMENTED OUT: Wallet feature
-    LogOut,
-    Phone,
-    Loader2,
-    SaveAll,
-    ChevronLeft,
-    // RefreshCw // COMMENTED OUT: Wallet feature
-} from 'lucide-vue-next'
+// COMMENTED OUT: Login/Registration imports - User no longer needs to register with phone number and name
+// import { Input } from "@/components/ui/input"
+// import { Label } from "@/components/ui/label"
+// import { Button } from "@/components/ui/button"
+// import {
+//     ChevronRight,
+//     // Copy, // COMMENTED OUT: Wallet feature
+//     LogOut,
+//     Phone,
+//     Loader2,
+//     SaveAll,
+//     ChevronLeft,
+//     // RefreshCw // COMMENTED OUT: Wallet feature
+// } from 'lucide-vue-next'
 // COMMENTED OUT: Wallet features
 // import { useQRCode } from '@vueuse/integrations/useQRCode'
 // import { useClipboard } from '@vueuse/core'
-import CallCard from './CallCard.vue'
-import IntlTelInput from "intl-tel-input/vueWithUtils";
-import "intl-tel-input/styles";
+// import CallCard from './CallCard.vue'
+// import IntlTelInput from "intl-tel-input/vueWithUtils";
+// import "intl-tel-input/styles";
 import { toast, Toaster } from 'vue-sonner'
-import posthog from 'posthog-js'
-import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '@/lib/firebase'
+// import posthog from 'posthog-js'
+// import { auth, RecaptchaVerifier, signInWithPhoneNumber } from '@/lib/firebase'
 
 // Add prop for showCloseButton
 const props = defineProps({
@@ -230,23 +241,24 @@ defineOptions({
     inheritAttrs: false
 })
 
-const currentState = ref('phone')
-const phoneNumber = ref('')
-const name = ref('')
-const walletAddress = ref('')
+// COMMENTED OUT: Login/Registration state management - User no longer needs to register
+// const currentState = ref('phone')
+// const phoneNumber = ref('')
+// const name = ref('')
+// const walletAddress = ref('')
 // COMMENTED OUT: Wallet balance features
 // const balance = ref(0)
 // const isRefreshing = ref(false)
 
 // const supabaseWallet = ref(null)
-const accountView = ref('wallet')
-const isValid = ref(false)
-const errorCode = ref(null)
+// const accountView = ref('wallet')
+// const isValid = ref(false)
+// const errorCode = ref(null)
 
 // COMMENTED OUT: Wallet clipboard feature
 // const { copy } = useClipboard()
 
-import { createClient } from '@supabase/supabase-js'
+// import { createClient } from '@supabase/supabase-js'
 // TEMPORARILY DISABLED: Blockchain features
 // import { http, createConfig, getBalance } from '@wagmi/core'
 // import { formatEther, parseEther } from 'viem'
@@ -265,228 +277,229 @@ import { createClient } from '@supabase/supabase-js'
 // }
 // const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-import { setVariable } from '../stores/retellVariables'
+// import { setVariable } from '../stores/retellVariables'
 
-const STORAGE_KEY = 'payphone_user'
-const AUTH_KEY = 'payphone_auth'
+// const STORAGE_KEY = 'payphone_user'
+// const AUTH_KEY = 'payphone_auth'
 
 
-// Add auto-login check
-onMounted(async () => {
-    const savedAuth = localStorage.getItem(AUTH_KEY)
-    if (savedAuth) {
-        console.log('savedAuth', savedAuth)
-        currentState.value = 'welcome'
-        const result = await getUser()
-
-        if (result.authError) {
-            // Token is invalid/expired, go back to phone login
-            console.log('Auth token invalid, redirecting to phone login')
-            currentState.value = 'phone'
-        } else if (name.value) {
-            // User exists and has a name, go to account
-            transitionToAccount()
-        } else if (result.exists) {
-            // User exists but has no name, go to register
-            currentState.value = 'register'
-        } else {
-            // No user found, go to phone login
-            currentState.value = 'phone'
-        }
-    }
-
-    // Initialize Firebase reCAPTCHA verifier
-    try {
-        recaptchaVerifier.value = new RecaptchaVerifier(auth, 'recaptcha-container', {
-            'size': 'invisible',
-            'callback': (response) => {
-                // reCAPTCHA solved, allow signInWithPhoneNumber
-                console.log('reCAPTCHA solved')
-            }
-        })
-    } catch (error) {
-        console.error('Error initializing reCAPTCHA:', error)
-    }
-})
+// COMMENTED OUT: Auto-login check - User no longer needs to register
+// onMounted(async () => {
+//     const savedAuth = localStorage.getItem(AUTH_KEY)
+//     if (savedAuth) {
+//         console.log('savedAuth', savedAuth)
+//         currentState.value = 'welcome'
+//         const result = await getUser()
+//
+//         if (result.authError) {
+//             // Token is invalid/expired, go back to phone login
+//             console.log('Auth token invalid, redirecting to phone login')
+//             currentState.value = 'phone'
+//         } else if (name.value) {
+//             // User exists and has a name, go to account
+//             transitionToAccount()
+//         } else if (result.exists) {
+//             // User exists but has no name, go to register
+//             currentState.value = 'register'
+//         } else {
+//             // No user found, go to phone login
+//             currentState.value = 'phone'
+//         }
+//     }
+//
+//     // Initialize Firebase reCAPTCHA verifier
+//     try {
+//         recaptchaVerifier.value = new RecaptchaVerifier(auth, 'recaptcha-container', {
+//             'size': 'invisible',
+//             'callback': (response) => {
+//                 // reCAPTCHA solved, allow signInWithPhoneNumber
+//                 console.log('reCAPTCHA solved')
+//             }
+//         })
+//     } catch (error) {
+//         console.error('Error initializing reCAPTCHA:', error)
+//     }
+// })
 
 // COMMENTED OUT: Generate QR code for wallet address
 // const qrCode = useQRCode(walletAddress)
 
-const isLoading = ref(false)
-const isRegistering = ref(false)
-
-const transitionToAccount = () => {
-    setTimeout(() => {
-        currentState.value = 'account'
-    }, 2000) // 2 second delay to show loading state
-}
-
-async function requestOtp() {
-    if (!recaptchaVerifier.value) {
-        throw new Error('reCAPTCHA not initialized')
-    }
-
-    // Use Firebase phone authentication
-    return signInWithPhoneNumber(auth, phoneNumber.value, recaptchaVerifier.value)
-}
-
-const handlePhoneSubmit = async () => {
-    if (isLoading.value) return
-
-    try {
-        isLoading.value = true
-
-        // Send verification code via Firebase
-        confirmationResult.value = await requestOtp()
-
-        // Track OTP requested event
-        posthog.capture('otp_requested', {
-            phone_number_provided: true,
-            method: 'firebase'
-        })
-
-        currentState.value = 'otp'
-        startResendTimer()
-
-        toast.success("Verification code sent", {
-            description: "Check your phone for the code",
-            duration: 3000,
-        })
-    } catch (error) {
-        console.error('Error sending OTP:', error)
-
-        // Track OTP request failure
-        posthog.capture('otp_request_failed', {
-            error: error.message,
-            error_code: error.code,
-            method: 'firebase'
-        })
-
-        // Handle specific Firebase errors
-        let errorMessage = "Failed to send verification code"
-        let errorDescription = error.message || "Please try again"
-
-        if (error.code === 'auth/quota-exceeded' || error.message?.includes('Error code: 39')) {
-            errorMessage = "SMS quota exceeded"
-            errorDescription = "Please configure test phone numbers in Firebase Console or enable billing"
-        } else if (error.code === 'auth/captcha-check-failed') {
-            errorMessage = "CAPTCHA verification failed"
-            errorDescription = "Please add your domain to Firebase authorized domains"
-        } else if (error.code === 'auth/invalid-phone-number') {
-            errorMessage = "Invalid phone number"
-            errorDescription = "Please enter a valid phone number with country code"
-        }
-
-        toast.error(errorMessage, {
-            description: errorDescription,
-            duration: 7000,
-        })
-    } finally {
-        isLoading.value = false
-    }
-}
-
-const handleRegister = async () => {
-    if (isRegistering.value) return
-
-    try {
-        isRegistering.value = true
-
-        // Get the current Firebase token
-        const firebaseToken = localStorage.getItem(AUTH_KEY)
-        if (!firebaseToken) {
-            // No token, redirect to phone login
-            toast.error("Session expired", {
-                description: "Please sign in with your phone number again",
-                duration: 5000,
-            })
-            currentState.value = 'phone'
-            return
-        }
-
-        // Sync with backend and update name
-        const user = await syncWithBackend(firebaseToken, name.value)
-
-        // Update local state with the response
-        // COMMENTED OUT: Blockchain balance query
-        // const _balance = await fetchWalletBalance(user.wallet_address)
-        name.value = user.name
-        phoneNumber.value = user.phone_number
-        walletAddress.value = user.wallet_address
-        // balance.value = _balance
-
-        // Update Retell variables
-        setVariable('user_name', user.name)
-        setVariable('user_phone', user.phone_number)
-        setVariable('wallet_address', user.wallet_address)
-        // setVariable('balance', _balance)
-
-        // Track successful registration
-        posthog.capture('user_registered', {
-            name_provided: !!name.value
-        })
-
-        // Identify the user in PostHog
-        posthog.identify(phoneNumber.value, {
-            name: name.value,
-            phone: phoneNumber.value,
-            wallet_address: walletAddress.value
-        })
-
-        currentState.value = 'welcome'
-        transitionToAccount()
-
-    } catch (error) {
-        console.error('Error registering user:', error)
-
-        // Track registration failure
-        posthog.capture('registration_failed', {
-            error: error.message
-        })
-
-        // Check if it's an auth-related error
-        if (error.message?.includes('401') || error.message?.includes('Unauthorized') || error.message?.includes('Backend sync failed')) {
-            // Clear invalid token and redirect to phone login
-            localStorage.removeItem(AUTH_KEY)
-            toast.error("Session expired", {
-                description: "Please sign in with your phone number again",
-                duration: 5000,
-            })
-            currentState.value = 'phone'
-        } else {
-            toast.error("Registration failed", {
-                description: "Please try again or contact support",
-                duration: 5000,
-            })
-        }
-    } finally {
-        isRegistering.value = false
-    }
-}
-
-
-const handleSignOut = () => {
-    // Track sign out event
-    posthog.capture('user_signed_out')
-
-    // Reset PostHog user
-    posthog.reset()
-
-    currentState.value = 'phone'
-    name.value = ''
-    phoneNumber.value = ''
-    walletAddress.value = ''
-    // balance.value = 0
-
-    // Clear local storage
-    localStorage.removeItem(AUTH_KEY)
-
-    // Reset Retell variables
-    setVariable('user_name', '')
-    setVariable('user_phone', '')
-    setVariable('wallet_address', '')
-    // setVariable('balance', '0')
-}
+// COMMENTED OUT: Login/Registration functions - User no longer needs to register with phone number and name
+// const isLoading = ref(false)
+// const isRegistering = ref(false)
+//
+// const transitionToAccount = () => {
+//     setTimeout(() => {
+//         currentState.value = 'account'
+//     }, 2000) // 2 second delay to show loading state
+// }
+//
+// async function requestOtp() {
+//     if (!recaptchaVerifier.value) {
+//         throw new Error('reCAPTCHA not initialized')
+//     }
+//
+//     // Use Firebase phone authentication
+//     return signInWithPhoneNumber(auth, phoneNumber.value, recaptchaVerifier.value)
+// }
+//
+// const handlePhoneSubmit = async () => {
+//     if (isLoading.value) return
+//
+//     try {
+//         isLoading.value = true
+//
+//         // Send verification code via Firebase
+//         confirmationResult.value = await requestOtp()
+//
+//         // Track OTP requested event
+//         posthog.capture('otp_requested', {
+//             phone_number_provided: true,
+//             method: 'firebase'
+//         })
+//
+//         currentState.value = 'otp'
+//         startResendTimer()
+//
+//         toast.success("Verification code sent", {
+//             description: "Check your phone for the code",
+//             duration: 3000,
+//         })
+//     } catch (error) {
+//         console.error('Error sending OTP:', error)
+//
+//         // Track OTP request failure
+//         posthog.capture('otp_request_failed', {
+//             error: error.message,
+//             error_code: error.code,
+//             method: 'firebase'
+//         })
+//
+//         // Handle specific Firebase errors
+//         let errorMessage = "Failed to send verification code"
+//         let errorDescription = error.message || "Please try again"
+//
+//         if (error.code === 'auth/quota-exceeded' || error.message?.includes('Error code: 39')) {
+//             errorMessage = "SMS quota exceeded"
+//             errorDescription = "Please configure test phone numbers in Firebase Console or enable billing"
+//         } else if (error.code === 'auth/captcha-check-failed') {
+//             errorMessage = "CAPTCHA verification failed"
+//             errorDescription = "Please add your domain to Firebase authorized domains"
+//         } else if (error.code === 'auth/invalid-phone-number') {
+//             errorMessage = "Invalid phone number"
+//             errorDescription = "Please enter a valid phone number with country code"
+//         }
+//
+//         toast.error(errorMessage, {
+//             description: errorDescription,
+//             duration: 7000,
+//         })
+//     } finally {
+//         isLoading.value = false
+//     }
+// }
+//
+// const handleRegister = async () => {
+//     if (isRegistering.value) return
+//
+//     try {
+//         isRegistering.value = true
+//
+//         // Get the current Firebase token
+//         const firebaseToken = localStorage.getItem(AUTH_KEY)
+//         if (!firebaseToken) {
+//             // No token, redirect to phone login
+//             toast.error("Session expired", {
+//                 description: "Please sign in with your phone number again",
+//                 duration: 5000,
+//             })
+//             currentState.value = 'phone'
+//             return
+//         }
+//
+//         // Sync with backend and update name
+//         const user = await syncWithBackend(firebaseToken, name.value)
+//
+//         // Update local state with the response
+//         // COMMENTED OUT: Blockchain balance query
+//         // const _balance = await fetchWalletBalance(user.wallet_address)
+//         name.value = user.name
+//         phoneNumber.value = user.phone_number
+//         walletAddress.value = user.wallet_address
+//         // balance.value = _balance
+//
+//         // Update Retell variables
+//         setVariable('user_name', user.name)
+//         setVariable('user_phone', user.phone_number)
+//         setVariable('wallet_address', user.wallet_address)
+//         // setVariable('balance', _balance)
+//
+//         // Track successful registration
+//         posthog.capture('user_registered', {
+//             name_provided: !!name.value
+//         })
+//
+//         // Identify the user in PostHog
+//         posthog.identify(phoneNumber.value, {
+//             name: name.value,
+//             phone: phoneNumber.value,
+//             wallet_address: walletAddress.value
+//         })
+//
+//         currentState.value = 'welcome'
+//         transitionToAccount()
+//
+//     } catch (error) {
+//         console.error('Error registering user:', error)
+//
+//         // Track registration failure
+//         posthog.capture('registration_failed', {
+//             error: error.message
+//         })
+//
+//         // Check if it's an auth-related error
+//         if (error.message?.includes('401') || error.message?.includes('Unauthorized') || error.message?.includes('Backend sync failed')) {
+//             // Clear invalid token and redirect to phone login
+//             localStorage.removeItem(AUTH_KEY)
+//             toast.error("Session expired", {
+//                 description: "Please sign in with your phone number again",
+//                 duration: 5000,
+//             })
+//             currentState.value = 'phone'
+//         } else {
+//             toast.error("Registration failed", {
+//                 description: "Please try again or contact support",
+//                 duration: 5000,
+//             })
+//         }
+//     } finally {
+//         isRegistering.value = false
+//     }
+// }
+//
+//
+// const handleSignOut = () => {
+//     // Track sign out event
+//     posthog.capture('user_signed_out')
+//
+//     // Reset PostHog user
+//     posthog.reset()
+//
+//     currentState.value = 'phone'
+//     name.value = ''
+//     phoneNumber.value = ''
+//     walletAddress.value = ''
+//     // balance.value = 0
+//
+//     // Clear local storage
+//     localStorage.removeItem(AUTH_KEY)
+//
+//     // Reset Retell variables
+//     setVariable('user_name', '')
+//     setVariable('user_phone', '')
+//     setVariable('wallet_address', '')
+//     // setVariable('balance', '0')
+// }
 
 // COMMENTED OUT: Wallet functions
 // const copyAddress = async () => {
@@ -528,252 +541,252 @@ const handleSignOut = () => {
 //     }
 // }
 
-// Modify getUser to save data
-const getUser = async () => {
-    try {
-        const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/users/me`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${localStorage.getItem(AUTH_KEY)}`
-            }
-        })
+// COMMENTED OUT: getUser function - User no longer needs to register
+// const getUser = async () => {
+//     try {
+//         const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/users/me`, {
+//             method: 'GET',
+//             headers: {
+//                 'Authorization': `Bearer ${localStorage.getItem(AUTH_KEY)}`
+//             }
+//         })
+//
+//         // Check if response is OK (status 200-299)
+//         if (!response.ok) {
+//             console.log('getUser failed with status:', response.status)
+//             // Clear invalid token from localStorage
+//             localStorage.removeItem(AUTH_KEY)
+//             return { exists: false, authError: true }
+//         }
+//
+//         const data = await response.json()
+//
+//         // Check if user data exists in response
+//         if (!data.user) {
+//             console.log('No user data in response')
+//             localStorage.removeItem(AUTH_KEY)
+//             return { exists: false, authError: true }
+//         }
+//
+//         // COMMENTED OUT: Blockchain balance query
+//         // const _balance = await fetchWalletBalance(data.user.wallet_address)
+//         console.log('user', data.user)
+//         name.value = data.user.name
+//         // balance.value = _balance
+//         walletAddress.value = data.user.wallet_address
+//         phoneNumber.value = data.user.phone_number
+//
+//         // Update Retell variables
+//         setVariable('user_name', data.user.name)
+//         setVariable('user_phone', data.user.phone_number)
+//         setVariable('wallet_address', data.user.wallet_address)
+//         // setVariable('balance', _balance)
+//
+//         return { exists: true }
+//     } catch (error) {
+//         console.log('Error checking user:', error)
+//         // Clear token on error - it might be invalid/expired
+//         localStorage.removeItem(AUTH_KEY)
+//         return { exists: false, authError: true }
+//     }
+// }
 
-        // Check if response is OK (status 200-299)
-        if (!response.ok) {
-            console.log('getUser failed with status:', response.status)
-            // Clear invalid token from localStorage
-            localStorage.removeItem(AUTH_KEY)
-            return { exists: false, authError: true }
-        }
 
-        const data = await response.json()
-
-        // Check if user data exists in response
-        if (!data.user) {
-            console.log('No user data in response')
-            localStorage.removeItem(AUTH_KEY)
-            return { exists: false, authError: true }
-        }
-
-        // COMMENTED OUT: Blockchain balance query
-        // const _balance = await fetchWalletBalance(data.user.wallet_address)
-        console.log('user', data.user)
-        name.value = data.user.name
-        // balance.value = _balance
-        walletAddress.value = data.user.wallet_address
-        phoneNumber.value = data.user.phone_number
-
-        // Update Retell variables
-        setVariable('user_name', data.user.name)
-        setVariable('user_phone', data.user.phone_number)
-        setVariable('wallet_address', data.user.wallet_address)
-        // setVariable('balance', _balance)
-
-        return { exists: true }
-    } catch (error) {
-        console.log('Error checking user:', error)
-        // Clear token on error - it might be invalid/expired
-        localStorage.removeItem(AUTH_KEY)
-        return { exists: false, authError: true }
-    }
-}
-
-
-// Add these new refs
-const otpDigits = ref(['', '', '', '', '', ''])
-const otpInputs = ref([])
-const isVerifying = ref(false)
-const resendTimer = ref(0)
-const confirmationResult = ref(null)
-const recaptchaVerifier = ref(null)
-
-// Add computed property for OTP completion
-const isOtpComplete = computed(() => {
-    return otpDigits.value.every(digit => digit.length === 1)
-})
-
-// Add these new functions
-const handleOtpInput = (index) => {
-    // Ensure only numbers
-    otpDigits.value[index] = otpDigits.value[index].replace(/[^0-9]/g, '')
-
-    // Move to next input
-    if (otpDigits.value[index] && index < 5) {
-        otpInputs.value[index + 1].focus()
-    }
-}
-
-const handleOtpKeydown = (event, index) => {
-    if (event.key === 'Backspace' && !otpDigits.value[index] && index > 0) {
-        // Move to previous input on backspace if current is empty
-        otpInputs.value[index - 1].focus()
-    }
-}
-
-const handleOtpPaste = (event) => {
-    event.preventDefault()
-    const pastedData = event.clipboardData.getData('text')
-    const numbers = pastedData.replace(/[^0-9]/g, '').split('')
-
-    otpDigits.value = otpDigits.value.map((_, index) => numbers[index] || '')
-}
-
-const startResendTimer = () => {
-    resendTimer.value = 60
-    const timer = setInterval(() => {
-        resendTimer.value--
-        if (resendTimer.value <= 0) {
-            clearInterval(timer)
-        }
-    }, 1000)
-}
-
-const resendOtp = async () => {
-    if (resendTimer.value > 0) return
-
-    try {
-        // Reset OTP digits
-        otpDigits.value = ['', '', '', '', '', '']
-
-        // Request new OTP via Firebase
-        confirmationResult.value = await requestOtp()
-
-        startResendTimer()
-
-        toast.success("New code sent", {
-            description: "Check your phone for the new code",
-            duration: 3000,
-        })
-    } catch (error) {
-        console.error('Error resending OTP:', error)
-
-        let errorDescription = "Please try again"
-        if (error.code === 'auth/quota-exceeded' || error.message?.includes('Error code: 39')) {
-            errorDescription = "SMS quota exceeded. Use test phone numbers or enable billing in Firebase"
-        }
-
-        toast.error("Failed to resend code", {
-            description: errorDescription,
-            duration: 7000,
-        })
-    }
-}
-
-const syncWithBackend = async (firebaseToken, userName = null) => {
-    try {
-        const body = {}
-        if (userName) {
-            body.name = userName
-        }
-
-        const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/firebase`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${firebaseToken}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
-        })
-
-        if (!response.ok) {
-            // Include status code in error for better error handling
-            throw new Error(`Backend sync failed: ${response.status} ${response.statusText}`)
-        }
-
-        const data = await response.json()
-        return data.user
-    } catch (error) {
-        console.error('Error syncing with backend:', error)
-        throw error
-    }
-}
-
-const verifyOtp = async () => {
-    if (isVerifying.value || !isOtpComplete.value || !confirmationResult.value) return
-
-    isVerifying.value = true
-
-    const otp = otpDigits.value.join('')
-    try {
-        // Verify the OTP code with Firebase
-        const result = await confirmationResult.value.confirm(otp)
-
-        // Get Firebase ID token
-        const firebaseToken = await result.user.getIdToken()
-
-        // Store Firebase token for future API calls
-        localStorage.setItem(AUTH_KEY, firebaseToken)
-
-        // Track successful verification
-        posthog.capture('otp_verified_success', {
-            method: 'firebase'
-        })
-
-        // Sync with backend - this creates or retrieves the user
-        const user = await syncWithBackend(firebaseToken)
-
-        // Update local state with user data from backend
-        // COMMENTED OUT: Blockchain balance query
-        // const _balance = await fetchWalletBalance(user.wallet_address)
-        name.value = user.name || ''
-        phoneNumber.value = user.phone_number
-        walletAddress.value = user.wallet_address
-        // balance.value = _balance
-
-        // Update Retell variables
-        setVariable('user_name', user.name || '')
-        setVariable('user_phone', user.phone_number)
-        setVariable('wallet_address', user.wallet_address)
-        // setVariable('balance', _balance)
-
-        toast.success("Phone number verified successfully", {
-            description: "Welcome back",
-            duration: 5000,
-        })
-        currentState.value = 'welcome'
-
-        // Identify user in PostHog after successful login
-        if (name.value) {
-            posthog.identify(phoneNumber.value, {
-                name: name.value,
-                phone: phoneNumber.value,
-                wallet_address: walletAddress.value
-            })
-
-            transitionToAccount()
-        } else {
-            currentState.value = 'register'
-        }
-    } catch (error) {
-        console.error('Error verifying OTP:', error)
-
-        // Track verification error
-        posthog.capture('otp_verification_error', {
-            error: error.message,
-            method: 'firebase'
-        })
-
-        // Check if it's an invalid code error
-        if (error.code === 'auth/invalid-verification-code') {
-            toast.error("Invalid verification code", {
-                description: "Please check the code and try again",
-                duration: 5000,
-            })
-        } else if (error.message?.includes('Backend sync failed')) {
-            toast.error("Failed to sync with server", {
-                description: "Please try again or contact support",
-                duration: 5000,
-            })
-        } else {
-            toast.error("An error occurred. Please try again.", {
-                description: error.message,
-                duration: 5000,
-            })
-        }
-    } finally {
-        isVerifying.value = false
-    }
-}
+// COMMENTED OUT: OTP-related refs and functions - User no longer needs to register
+// const otpDigits = ref(['', '', '', '', '', ''])
+// const otpInputs = ref([])
+// const isVerifying = ref(false)
+// const resendTimer = ref(0)
+// const confirmationResult = ref(null)
+// const recaptchaVerifier = ref(null)
+//
+// // Add computed property for OTP completion
+// const isOtpComplete = computed(() => {
+//     return otpDigits.value.every(digit => digit.length === 1)
+// })
+//
+// // Add these new functions
+// const handleOtpInput = (index) => {
+//     // Ensure only numbers
+//     otpDigits.value[index] = otpDigits.value[index].replace(/[^0-9]/g, '')
+//
+//     // Move to next input
+//     if (otpDigits.value[index] && index < 5) {
+//         otpInputs.value[index + 1].focus()
+//     }
+// }
+//
+// const handleOtpKeydown = (event, index) => {
+//     if (event.key === 'Backspace' && !otpDigits.value[index] && index > 0) {
+//         // Move to previous input on backspace if current is empty
+//         otpInputs.value[index - 1].focus()
+//     }
+// }
+//
+// const handleOtpPaste = (event) => {
+//     event.preventDefault()
+//     const pastedData = event.clipboardData.getData('text')
+//     const numbers = pastedData.replace(/[^0-9]/g, '').split('')
+//
+//     otpDigits.value = otpDigits.value.map((_, index) => numbers[index] || '')
+// }
+//
+// const startResendTimer = () => {
+//     resendTimer.value = 60
+//     const timer = setInterval(() => {
+//         resendTimer.value--
+//         if (resendTimer.value <= 0) {
+//             clearInterval(timer)
+//         }
+//     }, 1000)
+// }
+//
+// const resendOtp = async () => {
+//     if (resendTimer.value > 0) return
+//
+//     try {
+//         // Reset OTP digits
+//         otpDigits.value = ['', '', '', '', '', '']
+//
+//         // Request new OTP via Firebase
+//         confirmationResult.value = await requestOtp()
+//
+//         startResendTimer()
+//
+//         toast.success("New code sent", {
+//             description: "Check your phone for the new code",
+//             duration: 3000,
+//         })
+//     } catch (error) {
+//         console.error('Error resending OTP:', error)
+//
+//         let errorDescription = "Please try again"
+//         if (error.code === 'auth/quota-exceeded' || error.message?.includes('Error code: 39')) {
+//             errorDescription = "SMS quota exceeded. Use test phone numbers or enable billing in Firebase"
+//         }
+//
+//         toast.error("Failed to resend code", {
+//             description: errorDescription,
+//             duration: 7000,
+//         })
+//     }
+// }
+//
+// const syncWithBackend = async (firebaseToken, userName = null) => {
+//     try {
+//         const body = {}
+//         if (userName) {
+//             body.name = userName
+//         }
+//
+//         const response = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/firebase`, {
+//             method: 'POST',
+//             headers: {
+//                 'Authorization': `Bearer ${firebaseToken}`,
+//                 'Content-Type': 'application/json'
+//             },
+//             body: JSON.stringify(body)
+//         })
+//
+//         if (!response.ok) {
+//             // Include status code in error for better error handling
+//             throw new Error(`Backend sync failed: ${response.status} ${response.statusText}`)
+//         }
+//
+//         const data = await response.json()
+//         return data.user
+//     } catch (error) {
+//         console.error('Error syncing with backend:', error)
+//         throw error
+//     }
+// }
+//
+// const verifyOtp = async () => {
+//     if (isVerifying.value || !isOtpComplete.value || !confirmationResult.value) return
+//
+//     isVerifying.value = true
+//
+//     const otp = otpDigits.value.join('')
+//     try {
+//         // Verify the OTP code with Firebase
+//         const result = await confirmationResult.value.confirm(otp)
+//
+//         // Get Firebase ID token
+//         const firebaseToken = await result.user.getIdToken()
+//
+//         // Store Firebase token for future API calls
+//         localStorage.setItem(AUTH_KEY, firebaseToken)
+//
+//         // Track successful verification
+//         posthog.capture('otp_verified_success', {
+//             method: 'firebase'
+//         })
+//
+//         // Sync with backend - this creates or retrieves the user
+//         const user = await syncWithBackend(firebaseToken)
+//
+//         // Update local state with user data from backend
+//         // COMMENTED OUT: Blockchain balance query
+//         // const _balance = await fetchWalletBalance(user.wallet_address)
+//         name.value = user.name || ''
+//         phoneNumber.value = user.phone_number
+//         walletAddress.value = user.wallet_address
+//         // balance.value = _balance
+//
+//         // Update Retell variables
+//         setVariable('user_name', user.name || '')
+//         setVariable('user_phone', user.phone_number)
+//         setVariable('wallet_address', user.wallet_address)
+//         // setVariable('balance', _balance)
+//
+//         toast.success("Phone number verified successfully", {
+//             description: "Welcome back",
+//             duration: 5000,
+//         })
+//         currentState.value = 'welcome'
+//
+//         // Identify user in PostHog after successful login
+//         if (name.value) {
+//             posthog.identify(phoneNumber.value, {
+//                 name: name.value,
+//                 phone: phoneNumber.value,
+//                 wallet_address: walletAddress.value
+//             })
+//
+//             transitionToAccount()
+//         } else {
+//             currentState.value = 'register'
+//         }
+//     } catch (error) {
+//         console.error('Error verifying OTP:', error)
+//
+//         // Track verification error
+//         posthog.capture('otp_verification_error', {
+//             error: error.message,
+//             method: 'firebase'
+//         })
+//
+//         // Check if it's an invalid code error
+//         if (error.code === 'auth/invalid-verification-code') {
+//             toast.error("Invalid verification code", {
+//                 description: "Please check the code and try again",
+//                 duration: 5000,
+//             })
+//         } else if (error.message?.includes('Backend sync failed')) {
+//             toast.error("Failed to sync with server", {
+//                 description: "Please try again or contact support",
+//                 duration: 5000,
+//             })
+//         } else {
+//             toast.error("An error occurred. Please try again.", {
+//                 description: error.message,
+//                 duration: 5000,
+//             })
+//         }
+//     } finally {
+//         isVerifying.value = false
+//     }
+// }
 
 </script>
 
