@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import LoginForm from '../components/auth/LoginForm.vue';
+---
+
+<Layout>
+    <div class="min-h-screen flex items-center justify-center bg-stone-950 p-4">
+        <LoginForm client:load />
+    </div>
+</Layout> 

@@ -1,0 +1,20 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import BusinessManager from '../../components/business/BusinessManager.vue';
+
+// Check if user is authenticated (this will be handled by middleware)
+// but we can add an extra check here
+console.log(Astro.locals.auth())
+// const isAuthenticated = Astro.locals.user;
+
+// // Redirect if not authenticated
+// if (!isAuthenticated) {
+//   return Astro.redirect('/login?redirect=/business');
+// }
+---
+
+<Layout>
+    <div class="container mx-auto px-4 py-8">
+        <BusinessManager client:load />
+    </div>
+</Layout

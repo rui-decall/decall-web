@@ -1,0 +1,10 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SignupForm from '../components/auth/SignupForm.vue';
+---
+
+<Layout>
+    <div class="min-h-screen flex items-center justify-center bg-stone-950 p-4">
+        <SignupForm client:load />
+    </div>
+</Layout> 

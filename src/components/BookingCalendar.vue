@@ -5,7 +5,7 @@
       <h2>{{ formatDateRange(weekStart, weekEnd) }}</h2>
       <button @click="nextWeek" class="nav-button">Next &gt;</button>
     </div>
-    
+
     <div class="calendar-grid">
       <div class="time-column">
         <div class="time-header">Time</div>
@@ -13,14 +13,14 @@
           {{ formatTime(time) }}
         </div>
       </div>
-      
+
       <div v-for="date in weekDates" :key="date.toISOString()" class="day-column">
         <div class="day-header">
           {{ formatDate(date) }}
         </div>
-        <div 
-          v-for="time in timeSlots" 
-          :key="`${date.toISOString()}-${time}`" 
+        <div
+          v-for="time in timeSlots"
+          :key="`${date.toISOString()}-${time}`"
           class="slot"
           :class="getSlotClass(date, time)"
         >
@@ -117,10 +117,10 @@ function nextWeek() {
 }
 
 function formatDate(date: Date) {
-  return new Intl.DateTimeFormat('en-US', { 
-    weekday: 'short', 
-    month: 'short', 
-    day: 'numeric' 
+  return new Intl.DateTimeFormat('en-US', {
+    weekday: 'short',
+    month: 'short',
+    day: 'numeric'
   }).format(date)
 }
 
@@ -140,12 +140,12 @@ function getBooking(date: Date, time: string) {
   return bookings.value.find(booking => {
     const bookingDate = new Date(booking.booking_date).toDateString()
     const currentDate = date.toDateString()
-    
+
     // Convert time slot to match the format from database
     const slotTime = time // e.g. "10:00"
     const bookingFromTime = booking.from_time // e.g. "10:00:00"
-    
-    return bookingDate === currentDate && 
+
+    return bookingDate === currentDate &&
            slotTime === bookingFromTime.slice(0, 5) // Compare only HH:MM part
   })
 }
@@ -161,7 +161,7 @@ function getSlotClass(date: Date, time: string) {
 async function fetchBookings() {
   try {
     const { data, error } = await supabase
-      .from('booking_view')
+      .from('appointment_view')
       .select('*')
       .not('status', 'eq', 'cancelled')
       // .gte('date', weekStart.value.toISOString().split('T')[0])
@@ -317,4 +317,4 @@ onMounted(() => {
   background-color: #ffebee;
   color: #c62828;
 }
-</style> 
+</style>

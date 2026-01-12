@@ -37,7 +37,7 @@
                     <div class="space-y-1">
                         <Label class="text-white/50 text-sm">Status</Label>
                         <div class="flex items-center gap-2">
-                            <Badge 
+                            <Badge
                                 :class="{
                                     'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30': selectedEvent?.status === 'confirmed',
                                     'bg-orange-500/20 text-orange-300 hover:bg-orange-500/30': selectedEvent?.status === 'pending',
@@ -102,7 +102,7 @@
 
                 <DialogFooter class="border-t border-white/20">
                     <div class="px-6 py-4">
-                        <Button 
+                        <Button
                             @click="showDialog = false"
                             class="bg-zinc-800 border-white/20 hover:bg-zinc-700"
                         >
@@ -140,6 +140,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
     throw new Error('Missing Supabase environment variables');
 }
 
+console.log(143, supabaseUrl, supabaseAnonKey)
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 const bookings = ref([]);
 let calendar;
@@ -178,11 +179,15 @@ function updateCalendarEvents() {
     const enabledStatuses = statusFilters.value
         .filter(status => status.enabled)
         .map(status => status.value);
-    
-    const filteredEvents = bookings.value.filter(event => 
+
+    console.log(bookings.value)
+    console.log(enabledStatuses)
+    const filteredEvents = bookings.value.filter(event =>
         enabledStatuses.includes(event.extendedProps.status)
     );
-    
+
+    console.log(filteredEvents)
+
     if (calendar) {
         calendar.setOption('events', filteredEvents);
     }
@@ -191,11 +196,11 @@ function updateCalendarEvents() {
 async function fetchBookings() {
     try {
         const { data, error } = await supabase
-            .from('booking_view')
+            .from('appointment_view')
             .select('*');
 
         if (error) throw error;
-        
+
         const events = data.map(booking => ({
             id: booking.id,
             title: `${booking.customer_name ? booking.customer_name : 'User'}`,
@@ -211,9 +216,11 @@ async function fetchBookings() {
             },
         }));
 
+        console.log(215, events)
+
         bookings.value = events;
         updateCalendarEvents(); // Update with filters instead of setting directly
-        
+
         return events;
     } catch (error) {
         console.error('Error fetching bookings:', error);
@@ -260,7 +267,7 @@ function formatTime(dateStr) {
 }
 
 function getStatusCount(statusValue) {
-    return bookings.value.filter(event => 
+    return bookings.value.filter(event =>
         event.extendedProps.status === statusValue
     ).length;
 }
@@ -273,8 +280,8 @@ onMounted(async () => {
     const enabledStatuses = statusFilters.value
         .filter(status => status.enabled)
         .map(status => status.value);
-    
-    const filteredEvents = events.filter(event => 
+
+    const filteredEvents = events.filter(event =>
         enabledStatuses.includes(event.extendedProps.status)
     );
 
@@ -453,4 +460,4 @@ onMounted(async () => {
         transform: translate(-50%, -50%) scale(1);
     }
 }
-</style> 
+</style>

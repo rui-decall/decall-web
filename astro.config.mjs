@@ -10,14 +10,15 @@ import vue from '@astrojs/vue';
 import tailwind from "@astrojs/tailwind";
 
 // import tailwindcss from '@tailwindcss/vite';
-
 // https://astro.build/config
 export default defineConfig({
   adapter: cloudflare(),
   output: 'server',
   integrations: [
+    // clerk(),
     react(), 
-    vue(),
+    vue({ appEntrypoint: '/src/pages/_app' }),
+    // vue(),
     tailwind({
       applyBaseStyles: false
     })

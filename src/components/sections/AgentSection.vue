@@ -166,8 +166,8 @@ const startWebCall = () => {
     // Small delay to ensure modal transition is complete
     setTimeout(() => {
       if (callCardRef.value && !callInitiated.value) {
-        // Find and click the webcall button instead of calling handleCall directly
-        triggerWebCall();
+        // Use the exposed handleCall method from CallCard to trigger the phone dialog
+        callCardRef.value.handleCall();
         callInitiated.value = true;
       }
     }, 500);
@@ -175,29 +175,34 @@ const startWebCall = () => {
 };
 
 // Function to trigger the web call by finding and clicking the button
-const triggerWebCall = () => {
+// NO LONGER USED, keeping for reference or potential future use
+/* const triggerWebCall = () => {
   // Look for the hidden webcall container and click the button
   const webCallContainer = document.getElementById('hidden-webcall');
   if (webCallContainer) {
-    const webCallButton = webCallContainer.querySelector('.webcall-button');
+    const webCallButton = webCallContainer.querySelector('#webcall-start-btn');
     if (webCallButton) {
       webCallButton.click();
     } else {
-      console.error('Web call button not found');
+      console.error('Web call start button not found');
     }
   } else {
     console.error('Hidden webcall container not found');
   }
-};
+}; */
 
 // Handle closing the web call modal with tracking
 const handleCloseWebCall = () => {
   // Track web call ended
   posthog.capture('web_call_ended');
   
-  // End the call using the exposed method from CallCard
-  if (callCardRef.value) {
-    callCardRef.value.endCall();
+  // End the call by clicking the webcall button (toggles the call off)
+  const webCallContainer = document.getElementById('hidden-webcall');
+  if (webCallContainer) {
+    const webCallButton = webCallContainer.querySelector('#webcall-stop-btn');
+    if (webCallButton) {
+      webCallButton.click();
+    }
   }
   
   showWebCallModal.value = false;
