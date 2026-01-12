@@ -26,7 +26,7 @@
                 <button 
                     class="relative group w-[220px] h-[220px] rounded-full flex flex-col justify-center items-center gap-4 transition-all duration-200"
                     :class="callState.isCalling ? 'bg-green-500/20 border border-green-500/30' : 'bg-white/10 hover:bg-white/20 border border-white/20'"
-                    :disabled="callState.isCalling || !isLoggedIn"
+                    :disabled="callState.isCalling"
                     @click="handleCall"
                 >
                     <div class="relative flex flex-col items-center gap-2">
@@ -98,21 +98,22 @@
                 </div>
             </div>
 
-            <!-- User Info -->
+            <!-- COMMENTED OUT: User Info - Registration no longer required
             <div class="flex items-center gap-2 mt-4 bg-stone-800/50 px-5 py-3 rounded-lg w-full">
                 <User class="w-5 h-5 text-white/50" />
                 <span class="text-white/70">Calling As:</span>
                 <span class="text-white font-medium ml-1">{{ variables.user_name || '-' }}</span>
             </div>
-            
-            <Button 
-                v-if="!isLoggedIn" 
-                @click="setActiveTab('register')" 
+
+            <Button
+                v-if="!isLoggedIn"
+                @click="setActiveTab('register')"
                 class="flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-lg"
             >
                 <AlertTriangle class="w-4 h-4" />
                 <span class="text-sm">Please register/login first</span>
             </Button>
+            -->
         </div>
     </div>
 </template>
@@ -120,7 +121,8 @@
 <script setup lang="ts">
 import { ref, onMounted, computed, watch, onUnmounted } from 'vue'
 import { useStore } from '@nanostores/vue'
-import { Phone, PhoneOff, Loader2, Settings, User, AlertTriangle } from 'lucide-vue-next'
+import { Phone, PhoneOff, Loader2, Settings } from 'lucide-vue-next'
+// COMMENTED OUT: User, AlertTriangle - Registration no longer required
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
@@ -234,15 +236,17 @@ onUnmounted(() => {
     stopMicrophoneAnalysis()
 })
 
-const callDisabled = computed(() => {
-    // TEMPORARILY DISABLED: Blockchain balance check
-    // return !variables.value.wallet_address || !variables.value.user_phone || Number(variables.value.balance) < 0.001
-    return !variables.value.wallet_address || !variables.value.user_phone
-})
+// COMMENTED OUT: callDisabled - Registration no longer required
+// const callDisabled = computed(() => {
+//     // TEMPORARILY DISABLED: Blockchain balance check
+//     // return !variables.value.wallet_address || !variables.value.user_phone || Number(variables.value.balance) < 0.001
+//     return !variables.value.wallet_address || !variables.value.user_phone
+// })
 
-const isLoggedIn = computed(() => {
-  return !!variables.value.user_name && !!variables.value.wallet_address
-})
+// COMMENTED OUT: isLoggedIn - Registration no longer required
+// const isLoggedIn = computed(() => {
+//   return !!variables.value.user_name && !!variables.value.wallet_address
+// })
 
 // Initialize form values from store
 onMounted(() => {

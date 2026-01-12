@@ -7,7 +7,7 @@
         <h1 class="text-lg font-medium text-white/90">Payphone</h1>
       </div>
       
-      <!-- User Info -->
+      <!-- COMMENTED OUT: User Info - Registration no longer required
       <div class="flex items-center gap-4 py-1.5">
         <template v-if="userName">
           <div class="flex items-center gap-4">
@@ -25,8 +25,8 @@
               <CircleDollarSign class="w-3 h-3 text-white/60" />
               <span class="text-white/80 text-sm">{{ balance ? Math.round(balance * 100000) / 100000 : '0.0000' }} ETH</span>
             </div>
-            <button 
-              @click="handleSignOut" 
+            <button
+              @click="handleSignOut"
               class="ml-4 px-3 py-1 text-xs text-red-400 hover:text-red-300 border border-red-500/30 hover:border-red-500/50 rounded-md flex items-center gap-1 hover:bg-red-500/10 transition-colors"
             >
               <LogOut class="w-3 h-3" />
@@ -41,6 +41,7 @@
           </div>
         </template>
       </div>
+      -->
     </div>
   </header>
   
@@ -49,18 +50,20 @@
 </template>
 
 <script setup>
-import { User, Wallet, CircleDollarSign, LogOut } from 'lucide-vue-next'
+// COMMENTED OUT: User Info imports - Registration no longer required
+// import { User, Wallet, CircleDollarSign, LogOut } from 'lucide-vue-next'
 
-defineProps({
-  userName: String,
-  walletAddress: String,
-  balance: Number,
-  truncateAddress: Function
-})
+// COMMENTED OUT: User Info props - Registration no longer required
+// defineProps({
+//   userName: String,
+//   walletAddress: String,
+//   balance: Number,
+//   truncateAddress: Function
+// })
 
-const emit = defineEmits(['signOut'])
+// const emit = defineEmits(['signOut'])
 
-const handleSignOut = () => {
-  emit('signOut')
-}
+// const handleSignOut = () => {
+//   emit('signOut')
+// }
 </script> 

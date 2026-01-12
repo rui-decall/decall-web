@@ -1,12 +1,7 @@
 <template>
   <main class="bg-black min-h-[100dvh] text-white flex flex-col overflow-x-hidden font-inter">
-    <!-- Header -->
-    <AppHeader 
-      :userName="variables.user_name"
-      :walletAddress="variables.wallet_address"
-      :balance="getNumericBalance"
-      :truncateAddress="truncateAddress"
-    />
+    <!-- Header - COMMENTED OUT props: Registration no longer required -->
+    <AppHeader />
 
     <!-- Main Content -->
     <div class="flex-1 flex flex-col">
@@ -18,21 +13,21 @@
       
       <!-- Steps Sections Container -->
       <div class="w-full px-6 py-24 flex flex-col gap-32 max-w-7xl mx-auto">
-        <!-- Step 1: Account & Wallet -->
-        <RegisterSection 
-          :walletAddress="variables.wallet_address" 
+        <!-- COMMENTED OUT: Step 1 - Registration no longer required
+        <RegisterSection
+          :walletAddress="variables.wallet_address"
           :balance="getNumericBalance"
           :truncateAddress="truncateAddress"
           @selectTab="selectTab"
         />
-        
-        <!-- Step 2: Talk to Agent -->
-        <AgentSection 
-          :isLoggedIn="!!variables.user_name"
+        -->
+
+        <!-- Step 1: Talk to Agent (was Step 2) -->
+        <AgentSection
           @selectTab="selectTab"
         />
         
-        <!-- Step 3: Calendar -->
+        <!-- Step 2: Calendar (was Step 3) -->
         <CalendarSection />
       </div>
     </div>
