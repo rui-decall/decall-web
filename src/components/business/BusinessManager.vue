@@ -2,7 +2,7 @@
   <div class="bg-stone-950 w-full min-h-[100dvh] text-white/90 p-6">
     <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-medium">Business Management</h1>
-      <UserButton />
+      <!-- User Button was here -->
     </div>
     
     <!-- Navigation Tabs -->
@@ -63,7 +63,7 @@ import BusinessInfo from './BusinessInfo.vue'
 import StaffManagement from './StaffManagement.vue'
 import ServiceManagement from './ServiceManagement.vue'
 import CommunicationChannels from './CommunicationChannels.vue'
-import { UserButton } from '@clerk/vue'
+
 
 const tabs = [
   { id: 'info', name: 'Business Info' },

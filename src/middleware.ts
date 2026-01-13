@@ -1,7 +1,5 @@
-import { clerkMiddleware } from '@clerk/astro/server'
+import { defineMiddleware } from 'astro:middleware';
 
-
-export const onRequest = clerkMiddleware({
-    publishableKey: import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY,
-    secretKey: import.meta.env.CLERK_SECRET_KEY,
-})
+export const onRequest = defineMiddleware((context, next) => {
+  return next();
+});

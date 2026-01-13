@@ -15,7 +15,6 @@ export default defineConfig({
   adapter: cloudflare(),
   output: 'server',
   integrations: [
-    // clerk(),
     react(), 
     vue({ appEntrypoint: '/src/pages/_app' }),
     // vue(),
@@ -25,6 +24,9 @@ export default defineConfig({
   ],
 
   vite: {
+    ssr: {
+      external: [],
+    },
     // plugins: [tailwindcss()],
     resolve: {
       // Use react-dom/server.edge instead of react-dom/server.browser for React 19.
