@@ -42,7 +42,7 @@
             <div>
               <h2 class="text-xl text-white font-medium mb-2">What is This?</h2>
               <p class="text-white/80 text-sm leading-relaxed">
-                Payphone is a demo showcasing how businesses can automate appointments with AI voice agents. This system lets customers schedule, pay for, and confirm services using natural conversation.
+                Payphone is a demo showcasing how businesses can automate appointments with AI voice agents. This system lets customers schedule services using natural conversation.
               </p>
             </div>
           </div>
