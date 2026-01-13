@@ -23,7 +23,7 @@
           </span>
         </h1>
         <p class="text-3xl md:text-2xl text-white/80 max-w-2xl mx-auto leading-relaxed mb-3">
-          AI Reservations
+          Agentic Commerce for SMBs
         </p>
         <p class="text-sm md:text-base text-white/60 max-w-2xl mx-auto">
           Schedule your haircut at Ojisan Barber Salon with AI
