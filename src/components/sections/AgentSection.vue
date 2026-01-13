@@ -11,8 +11,8 @@
       Please register first before talking to the agent
     </div>
     -->
-    
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <!-- Phone Call -->
       <div class="flex flex-col items-center text-center gap-4">
         <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
@@ -29,7 +29,7 @@
           +1 (419) 780-6507
         </a>
       </div>
-      
+
       <!-- Web Call -->
       <div class="flex flex-col items-center text-center gap-4">
         <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
@@ -37,7 +37,7 @@
         </div>
         <h3 class="text-lg font-medium">Web Call</h3>
         <p class="text-white/70">Make a call directly from your browser to schedule</p>
-        
+
         <!-- Microphone Permission Button -->
         <button
           v-if="!isMicEnabled"
@@ -62,33 +62,17 @@
           Start Web Call
         </button>
       </div>
-      
-      <!-- WhatsApp -->
-      <div class="flex flex-col items-center text-center gap-4">
-        <div class="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center">
-          <MessageSquare class="w-8 h-8 text-white/70" />
-        </div>
-        <h3 class="text-lg font-medium">WhatsApp</h3>
-        <p class="text-white/70">Chat with us on WhatsApp to schedule an appointment</p>
-        <button
-          @click="openWhatsApp"
-          class="w-full py-3 px-4 bg-white/10 hover:bg-white/15 rounded-lg font-medium transition-colors duration-200 flex items-center justify-center gap-2 mt-auto"
-        >
-          <MessageSquare class="w-4 h-4" />
-          Chat on WhatsApp
-        </button>
-      </div>
     </div>
-    
+
     <!-- Web Call Modal -->
-    <HeadlessModal 
-      :is-open="showWebCallModal" 
+    <HeadlessModal
+      :is-open="showWebCallModal"
       @close="handleCloseWebCall"
       content-class="overflow-hidden"
     >
-      <CallCard 
+      <CallCard
         ref="callCardRef"
-        @close="handleCloseWebCall" 
+        @close="handleCloseWebCall"
       />
     </HeadlessModal>
   </section>
@@ -145,22 +129,22 @@ const startWebCall = () => {
     requestMicPermission();
     return;
   }
-  
+
   // Check if a call is already in progress
   if (callCardRef.value && callCardRef.value.isCallActive) {
     // Alert the user or show a notification
     alert('A call is already in progress. Please end the current call before starting a new one.');
     return;
   }
-  
+
   // Track web call initiated
   posthog.capture('web_call_initiated', {
     logged_in: true
   });
-  
+
   showWebCallModal.value = true;
   callInitiated.value = false;
-  
+
   // Wait for modal to be fully rendered before triggering call
   nextTick(() => {
     // Small delay to ensure modal transition is complete
@@ -193,18 +177,14 @@ const startWebCall = () => {
 
 // Handle closing the web call modal with tracking
 const handleCloseWebCall = () => {
-  // Track web call ended
-  posthog.capture('web_call_ended');
-  
-  // End the call by clicking the webcall button (toggles the call off)
-  const webCallContainer = document.getElementById('hidden-webcall');
-  if (webCallContainer) {
-    const webCallButton = webCallContainer.querySelector('#webcall-stop-btn');
-    if (webCallButton) {
-      webCallButton.click();
-    }
-  }
-  
+  // Track web call modal closed (not necessarily ended)
+  posthog.capture('web_call_modal_closed');
+
+  // Note: We deliberately DO NOT end the call here anymore.
+  // The user can browse the site while the call is active.
+  // The call can be ended via the "Hang Up" button in the CallCard,
+  // or via the hidden buttons if we expose a global control.
+
   showWebCallModal.value = false;
   callInitiated.value = false;
 };
@@ -220,4 +200,4 @@ const openWhatsApp = () => {
   // Now emit will be properly defined
   emit('selectTab', 'whatsapp');
 };
-</script> 
+</script>

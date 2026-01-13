@@ -2,32 +2,17 @@
   <section class="w-full py-12 px-6 border-b border-white/5 relative overflow-hidden">
     <!-- Accent glow -->
     <div class="absolute top-1/3 -left-20 w-96 h-96 rounded-full bg-white/10 blur-[120px]"></div>
-    
+
     <div class="max-w-6xl mx-auto w-full relative">
       <h2 class="text-3xl text-white font-medium mb-12 text-center">
         How it Works
       </h2>
-      
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-12 mb-20">
         <!-- Left Column: Steps -->
         <div class="space-y-12">
           <!-- Step 1 -->
-          <div class="flex gap-6">
-            <div class="flex-shrink-0">
-              <div class="relative flex items-center justify-center w-16 h-16 rounded-xl bg-gradient-to-b from-white/20 to-white/5 backdrop-blur-md shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white/90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-            </div>
-            <div>
-              <h3 class="text-xl font-medium text-white mb-3">Register Your Account</h3>
-              <p class="text-white/70 leading-relaxed">
-                Create an account to get your free onchain wallet. Fund at least 0.0015+ ETH on Base so you can book appointments.
-              </p>
-            </div>
-          </div>
-          
+
           <!-- Step 2 -->
           <div class="flex gap-6">
             <div class="flex-shrink-0">
@@ -40,11 +25,11 @@
             <div>
               <h3 class="text-xl font-medium text-white mb-3">Talk to the AI Assistant</h3>
               <p class="text-white/70 leading-relaxed">
-                Choose your preferred channel to book an appointment - phone call, web call, or WhatsApp.
+                Choose your preferred channel to book an appointment - phone call or web call.
               </p>
             </div>
           </div>
-          
+
           <!-- Step 3 -->
           <div class="flex gap-6">
             <div class="flex-shrink-0">
@@ -57,12 +42,12 @@
             <div>
               <h3 class="text-xl font-medium text-white mb-3">Track Your Appointments</h3>
               <p class="text-white/70 leading-relaxed">
-                View your appointments in the calendar, check status and transaction hash.
+                View your appointments in the calendar.
               </p>
             </div>
           </div>
         </div>
-        
+
         <!-- Right Column: Business Info Card -->
         <div class="p-8 rounded-xl border border-white/15 bg-gradient-to-b from-white/[0.10] to-white/[0.02] backdrop-blur-sm shadow-[0_8px_32px_rgba(0,0,0,0.25),inset_0_1px_2px_rgba(255,255,255,0.15)]">
           <div class="flex items-center gap-4 mb-6">
@@ -74,16 +59,16 @@
               <p class="text-white/60 text-sm">Our Fictional Demo Business</p>
             </div>
           </div>
-          
+
           <div class="mb-6">
             <p class="text-white/80 text-sm leading-relaxed mb-4">
               The agent works 24/7, but take note of the below business hours.
             </p>
             <p class="text-white/80 text-sm leading-relaxed">
-              You can reach the agent via Phone Call, Web Call (on this website) or WhatsApp.
+              You can reach the agent via Phone Call or Web Call (on this website).
             </p>
           </div>
-          
+
           <div class="border border-white/15 rounded-lg overflow-hidden">
             <div class="bg-white/10 px-4 py-3">
               <h4 class="text-white/90 text-sm font-medium">Business Hours</h4>
@@ -115,4 +100,4 @@
 <script setup>
 // No DotPattern import needed anymore
 import { Store } from 'lucide-vue-next';
-</script> 
+</script>

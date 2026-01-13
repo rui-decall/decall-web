@@ -282,7 +282,7 @@ watch(() => callState.value.isCalling, (isCalling) => {
     } else {
         stopMicrophoneAnalysis()
     }
-})
+}, { immediate: true })
 
 // Clean up on component unmount
 onUnmounted(() => {
@@ -353,12 +353,8 @@ const startWebCall = () => {
     }
 }
 
-// Handle close button - end call first if active, then emit close
+// Handle close button - just emit close, do NOT end call
 const handleClose = () => {
-    // End the call if one is in progress
-    if (callState.value.isCalling) {
-        endCall()
-    }
     // Emit close event to parent
     emit('close')
 }

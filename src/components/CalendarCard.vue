@@ -61,24 +61,6 @@
                         </div>
                     </div> -->
 
-                    <!-- Receipt -->
-                    <div class="space-y-1">
-                        <Label class="text-white/50 text-sm">Receipt</Label>
-                        <div class="flex items-center gap-2 text-white/90">
-                            <Link class="w-4 h-4 text-white/50" />
-                            <a v-if="selectedEvent?.receipt" :href="selectedEvent?.receipt" target="_blank">Payment Link</a>
-                            <p v-else>No payment link</p>
-                        </div>
-                    </div>
-
-                    <!-- Cancel Receipt -->
-                    <div v-if="selectedEvent?.cancelReceipt" class="space-y-1">
-                        <Label class="text-white/50 text-sm">Cancelled Receipt</Label>
-                        <div class="flex items-center gap-2 text-white/90">
-                            <Link class="w-4 h-4 text-white/50" />
-                            <a :href="selectedEvent?.cancelReceipt" target="_blank">Refund Payment Link</a>
-                        </div>
-                    </div>
 
 
                     <!-- Date & Time -->
@@ -236,7 +218,7 @@ function subscribeToBookings() {
             {
                 event: '*', // Listen to all events (INSERT, UPDATE, DELETE)
                 schema: 'public',
-                table: 'bookings'
+                table: 'appointments'
             },
             (payload) => {
                 console.log('Booking change received:', payload);
